@@ -167,7 +167,14 @@ Bridge.getVector = function(source, map, z, x, y, callback) {
     if (source._deflate) headers['Content-Encoding'] = 'deflate';
 
     map.resize(256, 256);
-    map.extent = sm.bbox(+x,+y,+z, false, '900913');
+    var proj = '900913';
+    if (map.srs.indexOf('epsg:4326') > -1 || map.srs.indexOf('proj=longlat') > -1) {
+        proj = '4326 (anything other than 900913 is a no-op)';
+    }
+    var e = sm.bbox(+x,+y,+z, false, proj);
+//    console.log(e);
+//    map.aspect_fix_mode = mapnik.Map.ASPECT_RESPECT;
+    map.extent = e;
     // also pass buffer_size in options to be forward compatible with recent node-mapnik
     // https://github.com/mapnik/node-mapnik/issues/175
     opts.buffer_size = map.bufferSize;
