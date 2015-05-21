@@ -183,7 +183,7 @@ Bridge.getVector = function(source, map, z, x, y, callback) {
         A value of 1 is used at maxzoom and above. The idea is that 1 will throw out nearly coincident points while
         having negligible visual impact even if the tile is overzoomed (but this warrants more testing).
     */
-    opts.simplify_distance = z < source._maxzoom ? 8 : 1;
+    opts.simplify_distance = 0;//z < source._maxzoom ? 8 : 1;
     // This is the default path_multiplier - it is not recommended to change this
     opts.path_multiplier = 16;
 
