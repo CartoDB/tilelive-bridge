@@ -302,8 +302,8 @@ function compare_vtiles(assert,filepath,vtile1,vtile2) {
                         var pair = ring[j];
                         var lonDiff = Math.abs(pair[0] - coordinates[i][k][j][0]);
                         var latDiff = Math.abs(pair[1] - coordinates[i][k][j][1]);
-                        assert.equal(true, lonDiff < 0.0000000000001);
-                        assert.equal(true, latDiff < 0.0000000000001);
+                        assert.equal(true, lonDiff < 0.0000000000001, lonDiff + ' < 0.0000000000001');
+                        assert.equal(true, latDiff < 0.0000000000001, latDiff + ' < 0.0000000000001');
                     }
                 }
             }
