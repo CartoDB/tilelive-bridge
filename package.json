@@ -13,7 +13,7 @@
     }
   ],
   "dependencies": {
-    "mapnik": "~3.3.0",
+    "mapnik": "https://github.com/CartoDB/node-mapnik/tarball/1.4.15-cdb1",
     "sphericalmercator": "1.0.x",
     "mapnik-pool": "0.1.x"
   },
