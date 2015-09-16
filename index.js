@@ -44,6 +44,9 @@ function Bridge(uri, callback) {
         // 'blank' option forces all solid tiles to be interpreted as blank.
         source._blank = typeof uri.blank === 'boolean' ? uri.blank : false;
 
+        // whether to compress the vector tiles or not
+        source._gzip = typeof uri.gzip === 'boolean' ? uri.gzip : true;
+
         if (callback) source.once('open', callback);
 
         source.update(uri, function(err) {
@@ -200,21 +203,25 @@ Bridge.getVector = function(source, map, z, x, y, callback) {
             // we no longer need the vtile data, so purge it now
             // to keep memory low and trigger less gc churn
             image.clear(function(err) {
-                zlib.gzip(buffer, function(err, pbfz) {
-                    if (err) return callback(err);
+                if (source._gzip) {
+                    zlib.gzip(buffer, function(err, pbfz) {
+                        if (err) return callback(err);
 
-                    headers['Content-Encoding'] = 'gzip';
+                        headers['Content-Encoding'] = 'gzip';
 
-                    // Solid handling.
-                    if (solid === false) return callback(err, pbfz, headers);
+                        // Solid handling.
+                        if (solid === false) return callback(err, pbfz, headers);
 
-                    // Empty tiles are equivalent to no tile.
-                    if (source._blank || !key) return callback(new Error('Tile does not exist'));
+                        // Empty tiles are equivalent to no tile.
+                        if (source._blank || !key) return callback(new Error('Tile does not exist'));
 
-                    pbfz.solid = key;
+                        pbfz.solid = key;
 
-                    return callback(err, pbfz, headers);
-                });
+                        return callback(err, pbfz, headers);
+                    });
+                } else {
+                    return callback(null, buffer, headers);
+                }
             });
         });
     });
