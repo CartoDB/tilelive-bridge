@@ -1,6 +1,6 @@
 {
   "name": "tilelive-bridge",
-  "version": "1.3.0-cdb5",
+  "version": "1.3.0-cdb6",
   "main": "./index.js",
   "description": "Datasource => vector tiles bridge backend for tilelive",
   "repository": {
@@ -13,9 +13,9 @@
     }
   ],
   "dependencies": {
-    "mapnik": "https://github.com/CartoDB/node-mapnik/tarball/1.4.15-cdb8",
+    "mapnik": "cartodb/node-mapnik#1.4.15-cdb8",
     "sphericalmercator": "1.0.x",
-    "mapnik-pool": "https://github.com/CartoDB/mapnik-pool/tarball/0.1.1-cdb5"
+    "mapnik-pool": "cartodb/mapnik-pool#0.1.1-cdb6"
   },
   "devDependencies": {
     "tape": "3.0.x"
