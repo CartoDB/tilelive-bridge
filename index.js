@@ -64,6 +64,9 @@ function Bridge(uri, callback) {
         // 'blank' option forces all solid tiles to be interpreted as blank.
         source._blank = typeof uri.blank === 'boolean' ? uri.blank : false;
 
+        // whether to compress the vector tiles or not
+        source._gzip = typeof uri.gzip === 'boolean' ? uri.gzip : true;
+
         if (callback) source.once('open', callback);
 
         source.update(uri, function(err) {
@@ -235,7 +238,7 @@ Bridge.getVector = function(source, map, z, x, y, callback) {
 
 
     // The buffer size is in vector tile coordinates, while the buffer size on the
-    // map object is in image coordinates. Therefore, lets multiply the buffer_size 
+    // map object is in image coordinates. Therefore, lets multiply the buffer_size
     // by the old "path_multiplier" value of 16 to get a proper buffer size.
     try {
         // Try-catch is necessary here because the constructor will throw if x and y
@@ -244,7 +247,7 @@ Bridge.getVector = function(source, map, z, x, y, callback) {
     } catch(err) {
         return callback(err, null, headers);
     }
-    
+
     map.extent = vtile.extent();
 
     /*
@@ -287,9 +290,9 @@ Bridge.getVector = function(source, map, z, x, y, callback) {
         if (vtile.empty()) {
             return callback(new Error('Tile does not exist'), null, headers);
         }
-        vtile.getData({compression:'gzip'}, function(err, pbfz) {
+        vtile.getData({ compression: source._gzip ? 'gzip' : undefined }, function(err, pbfz) {
             if (err) return callback(err);
-            headers['Content-Encoding'] = 'gzip';
+            headers['Content-Encoding'] = source._gzip ? 'gzip' : undefined;
             return callback(err, pbfz, headers);
         });
     });
