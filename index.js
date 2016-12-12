@@ -305,7 +305,7 @@ Bridge.getVector = function(source, map, z, x, y, callback) {
         if (vtile.empty()) {
             return callback(new Error('Tile does not exist'), null, headers);
         }
-        vtile.getData({ compression: source._gzip ? 'gzip' : undefined }, function(err, pbfz) {
+        vtile.getData({ compression: source._gzip ? 'gzip' : 'none' }, function(err, pbfz) {
             if (err) return callback(err);
             headers['Content-Encoding'] = source._gzip ? 'gzip' : undefined;
             if (source.BRIDGE_LOG_MAX_VTILE_BYTES_COMPRESSED > 0 && pbfz.length > source.BRIDGE_LOG_MAX_VTILE_BYTES_COMPRESSED) {
