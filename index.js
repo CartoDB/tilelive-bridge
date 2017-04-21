@@ -67,8 +67,7 @@ function Bridge(uri, callback) {
         // whether to compress the vector tiles or not
         source._gzip = typeof uri.gzip === 'boolean' ? uri.gzip : true;
 
-        source._bufferSize = (uri.query && uri.query.bufferSize) ? uri.query.bufferSize : 256;
-
+        source._bufferSize = (uri.query && Number.isFinite(uri.query.bufferSize) && uri.query.bufferSize >= 0) ? uri.query.bufferSize : 256;
         if (callback) source.once('open', callback);
 
         source.update(uri, function(err) {
