@@ -92,7 +92,6 @@ var rasterxml = {
             });
         });
     });
-
     tape('should fail with out of bounds x or y', function(assert) {
         new Bridge({ xml:xml.a, base:path.join(__dirname,'/') }, function(err, source) {
             assert.ifError(err);
