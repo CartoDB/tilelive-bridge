@@ -1,5 +1,9 @@
 # Changlog
 
+## 2.3.1-cdb2
+
+ - Be able to configure buffer size from uri
+
 ## 2.3.1
 
  - Add try/catch around mapnik.VectorTile constructor to prevent invalid parameters from causing a throw
@@ -66,7 +70,7 @@
 ## 1.2.6
 
  - Drain the mapnik-pool before destroying it during .close()
- 
+
 ## 1.2.5
 
  - Rollback getIndexableDocs limit change
