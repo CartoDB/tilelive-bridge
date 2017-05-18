@@ -13,6 +13,10 @@
  - Updated to use mapnik 3.6.0
  - Switch to using @mapbox package for spherical mercator
 
+## 2.3.1-cdb2
+
+ - Be able to configure buffer size from uri
+ 
 ## 2.3.1
 
  - Add try/catch around mapnik.VectorTile constructor to prevent invalid parameters from causing a throw
