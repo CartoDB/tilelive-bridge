@@ -14,6 +14,7 @@ var mapnikPool = mapnik_pool(mapnik);
 var xml = {
     a: fs.readFileSync(path.resolve(path.join(__dirname,'/test-a.xml')), 'utf8'),
     b: fs.readFileSync(path.resolve(path.join(__dirname,'/test-b.xml')), 'utf8'),
+    c: fs.readFileSync(path.resolve(path.join(__dirname,'/test-c.xml')), 'utf8'),
     itp: fs.readFileSync(path.resolve(path.join(__dirname,'/itp.xml')), 'utf8'),
     carmen_a: fs.readFileSync(path.resolve(path.join(__dirname,'/test-carmenprops-a.xml')), 'utf8')
 };
@@ -493,6 +494,102 @@ function compare_vtiles(assert,filepath,vtile1,vtile2) {
             assert.equal(0,source._map.getPoolSize());
             assert.equal(0,source._im.getPoolSize());
             assert.end();
+        });
+    });
+})();
+
+(function() {
+    // Buffer-size configurable
+
+    tape('should receive buffer-size parameter through URI', function(assert) {
+        new Bridge({xml: '<Map></Map>', query:{bufferSize: 0}}, function(err, source) {
+            assert.ifError(err);
+            assert.ok(source);
+            assert.equal(source._bufferSize, 0);
+            assert.end();
+        });
+    });
+
+    tape('should set to default value if buffer-size passed through URI is not a positive numberj', function(assert) {
+        new Bridge({xml: '<Map></Map>', query:{bufferSize: -1}}, function(err, source) {
+            assert.ifError(err);
+            assert.ok(source);
+            assert.equal(source._bufferSize, 256);
+            assert.end();
+        });
+    });
+
+    tape('should set to default value if buffer-size passed through URI is not a number', function(assert) {
+        new Bridge({xml: '<Map></Map>', query:{bufferSize: 'aa'}}, function(err, source) {
+            assert.ifError(err);
+            assert.ok(source);
+            assert.equal(source._bufferSize, 256);
+            assert.end();
+        });
+    });
+
+    var sources = {
+        a: new Bridge({ xml: xml.c, base: path.join(__dirname,'/'), query: {bufferSize: 0}}),
+        b: new Bridge({ xml: xml.c, base: path.join(__dirname,'/'), query: {bufferSize: 64}}),
+    };
+
+    var tests = {
+        a: [{ coords: '1.0.0', bufferSize: 0 }, { coords: '2.1.1', bufferSize: 0 }],
+        b: [{ coords: '1.0.0', bufferSize: 64 }, { coords: '2.1.1', bufferSize: 64 }]
+    };
+
+    Object.keys(tests).forEach(function(source) {
+        tape('setup', function(assert) {
+            sources[source].open(function(err) {
+                assert.ifError(err);
+                assert.end();
+            });
+        });
+    });
+    Object.keys(tests).forEach(function(source) {
+        tests[source].forEach(function(test) {
+            var coords = test.coords.split('.');
+            var bufferSize = test.bufferSize;
+            var z = coords[0];
+            var x = coords[1];
+            var y = coords[2];
+            tape('should render ' + source + ' (' + test.coords + ') using buffer-size ' + bufferSize, function(assert) {
+                sources[source].getTile(z,x,y, function(err, buffer, headers) {
+                    assert.ifError(err);
+                    assert.equal(headers['Content-Type'], 'application/x-protobuf');
+                    assert.equal(headers['Content-Encoding'], 'gzip');
+
+                    zlib.gunzip(buffer, function(err, buffer) {
+                        assert.ifError(err);
+
+                        var filepath = path.join(__dirname,'/expected/' + source + '.' + test.coords + '.vector.buffer-size.' + bufferSize + '.pbf');
+                        if (UPDATE || !fs.existsSync(filepath)) fs.writeFileSync(filepath, buffer);
+                        // fs.writeFileSync(filepath, buffer)
+
+                        var expected = fs.readFileSync(filepath);
+                        var vtile1 = new mapnik.VectorTile(+z,+x,+y,{buffer_size:16*test.bufferSize});
+                        var vtile2 = new mapnik.VectorTile(+z,+x,+y,{buffer_size:16*test.bufferSize});
+                        vtile1.setDataSync(expected);
+                        vtile2.setDataSync(buffer);
+                        compare_vtiles(assert, filepath, vtile1, vtile2);
+                        assert.equal(expected.length, buffer.length);
+                        assert.deepEqual(expected, buffer);
+                        assert.end();
+                    });
+                });
+            });
+        });
+    });
+    Object.keys(tests).forEach(function(source) {
+        tape('teardown', function(assert) {
+            var s = sources[source];
+            assert.equal(1,s._map.getPoolSize());
+            assert.equal(0,s._im.getPoolSize());
+            s.close(function() {
+                assert.equal(0,s._map.getPoolSize());
+                assert.equal(0,s._im.getPoolSize());
+                assert.end();
+            });
         });
     });
 })();
