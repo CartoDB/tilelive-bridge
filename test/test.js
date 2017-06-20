@@ -662,7 +662,7 @@ function compare_vtiles(assert,filepath,vtile1,vtile2) {
             tape('should timeout ' + source + ' (' + test.coords + ') using limits.render ' + timeout, function (assert) {
                 sources[source].getTile(z,x,y, function(err, buffer, headers) {
                     assert.ok(err);
-                    assert.equal(err.message, 'Timeout of ' + timeout + 'ms exceeded');
+                    assert.equal(err.message, 'Render timed out');
                     assert.end();
                 });
             });
