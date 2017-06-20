@@ -74,7 +74,7 @@ function Bridge(uri, callback) {
         if (typeof source._uri.limits.render === 'undefined') source._uri.limits.render = 0;
 
         if (source._uri.limits.render > 0) {
-            source.getTile = timeoutDecorator.method(source.getTile, source, source._uri.limits.render);
+            source.getTile = timeoutDecorator(source.getTile.bind(source), source._uri.limits.render);
         }
 
         if (callback) source.once('open', callback);

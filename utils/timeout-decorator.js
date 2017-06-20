@@ -1,10 +1,10 @@
-exports.method = function timeoutMethodDecorator(method, context, ms) {
+module.exports = function timeoutMethodDecorator(fn, ms) {
   return function () {
     var timeout = false;
     var args = [].slice.call(arguments, 0, arguments.length - 1);
     var callback = arguments[arguments.length - 1];
 
-    var timeoutId = setTimeout(function(){
+    var timeoutId = setTimeout(function () {
       timeout = true;
       var err = new Error('Timeout of ' + ms + 'ms exceeded');
       callback(err);
@@ -18,6 +18,6 @@ exports.method = function timeoutMethodDecorator(method, context, ms) {
       callback.apply(null, arguments);
     })
 
-    method.apply(context, args);
+    fn.apply(null, args);
   }
 }
