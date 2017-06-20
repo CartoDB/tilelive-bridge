@@ -6,7 +6,7 @@ module.exports = function timeoutDecorator(fn, ms) {
 
     var timeoutId = setTimeout(function () {
       timeout = true;
-      var err = new Error('Timeout of ' + ms + 'ms exceeded');
+      var err = new Error('Render timed out');
       callback(err);
     }, ms);
 
