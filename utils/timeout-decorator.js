@@ -1,4 +1,4 @@
-module.exports = function timeoutMethodDecorator(fn, ms) {
+module.exports = function timeoutDecorator(fn, ms) {
   return function () {
     var timeout = false;
     var args = [].slice.call(arguments, 0, arguments.length - 1);
