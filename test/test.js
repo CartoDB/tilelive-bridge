@@ -593,3 +593,77 @@ function compare_vtiles(assert,filepath,vtile1,vtile2) {
         });
     });
 })();
+
+(function() {
+    // limits: timeout configurable
+
+    tape('should receive timeout parameter through URI', function (assert) {
+        var uri = {
+            xml: '<Map></Map>',
+            query: {
+                limits: {
+                    render: 1
+                }
+            }
+        }
+        new Bridge(uri, function(err, source) {
+            assert.ifError(err);
+            assert.ok(source);
+            assert.equal(source._uri.limits.render, 1);
+            assert.end();
+        });
+    });
+
+    var sources = {
+        a: new Bridge({
+            xml: xml.c,
+            base: path.join(__dirname,'/'), query: {
+                bufferSize: 64,
+                limits: {
+                    render: 1
+                }
+            }
+        })
+    };
+
+    var tests = {
+        a: [{ coords: '2.1.1', timeout: 1 }],
+    };
+
+    Object.keys(tests).forEach(function(source) {
+        tape('setup', function(assert) {
+            sources[source].open(function(err) {
+                assert.ifError(err);
+                assert.end();
+            });
+        });
+    });
+    Object.keys(tests).forEach(function (source) {
+        tests[source].forEach(function (test) {
+            var coords = test.coords.split('.');
+            var timeout = test.timeout;
+            var z = coords[0];
+            var x = coords[1];
+            var y = coords[2];
+            tape('should timeout ' + source + ' (' + test.coords + ') using limits.render ' + timeout, function (assert) {
+                sources[source].getTile(z,x,y, function(err, buffer, headers) {
+                    assert.ok(err);
+                    assert.equal(err.message, 'Timeout of ' + timeout + 'ms exceeded');
+                    assert.end();
+                });
+            });
+        });
+    });
+    Object.keys(tests).forEach(function(source) {
+        tape('teardown', function(assert) {
+            var s = sources[source];
+            assert.equal(1,s._map.getPoolSize());
+            assert.equal(0,s._im.getPoolSize());
+            s.close(function() {
+                assert.equal(0,s._map.getPoolSize());
+                assert.equal(0,s._im.getPoolSize());
+                assert.end();
+            });
+        });
+    });
+})();

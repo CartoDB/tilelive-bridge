@@ -8,6 +8,7 @@ var immediate = global.setImmediate || process.nextTick;
 var mapnik_pool = require('mapnik-pool');
 var Pool = mapnik_pool.Pool;
 var os = require('os');
+var timeoutDecorator = require('./utils/timeout-decorator')
 
 // Register datasource plugins
 mapnik.register_default_input_plugins();
@@ -68,6 +69,14 @@ function Bridge(uri, callback) {
         source._gzip = typeof uri.gzip === 'boolean' ? uri.gzip : true;
 
         source._bufferSize = (uri.query && Number.isFinite(uri.query.bufferSize) && uri.query.bufferSize >= 0) ? uri.query.bufferSize : 256;
+
+        source._uri.limits = (uri.query && uri.query.limits) ? uri.query.limits : {};
+        if (typeof source._uri.limits.render === 'undefined') source._uri.limits.render = 0;
+
+        if (source._uri.limits.render > 0) {
+            source.getTile = timeoutDecorator.method(source.getTile, source, source._uri.limits.render);
+        }
+
         if (callback) source.once('open', callback);
 
         source.update(uri, function(err) {
