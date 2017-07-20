@@ -17,6 +17,11 @@
  - Updated to use mapnik 3.6.0
  - Switch to using @mapbox package for spherical mercator
 
+## 2.3.1-cdb3
+
+ - Do not set encoding header if compression was not required
+
+
 ## 2.3.1-cdb2
 
  - Be able to configure buffer size from uri
