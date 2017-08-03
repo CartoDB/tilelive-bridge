@@ -13,7 +13,7 @@
     }
   ],
   "dependencies": {
-    "mapnik": "cartodb/node-mapnik#3.5.x-mvt-variables",
+    "mapnik": "cartodb/node-mapnik#v3.5.14-1000x",
     "sphericalmercator": "1.0.x",
     "mapnik-pool": "~0.1.3"
   },
