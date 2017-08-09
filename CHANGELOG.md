@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.3.1-cdb3 (not released)
+## 2.3.1-cdb4
 
  - Do not wait for tile fetching after timeout fires
 
