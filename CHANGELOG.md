@@ -13,6 +13,19 @@
 
  - Be able to configure buffer size from uri
 
+## 2.5.1
+
+ - Reduce mapnik dependency to include ~3.6.0 for any downstream users
+
+## 2.5.0
+
+ - Add option to limit tiles by size in bytes [#92](https://github.com/mapbox/tilelive-bridge/pull/92)
+
+## 2.4.0
+
+ - Updated to use mapnik 3.6.0
+ - Switch to using @mapbox package for spherical mercator
+
 ## 2.3.1
 
  - Add try/catch around mapnik.VectorTile constructor to prevent invalid parameters from causing a throw
