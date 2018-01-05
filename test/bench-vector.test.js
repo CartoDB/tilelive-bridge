@@ -1,5 +1,5 @@
 var Bridge = require('..');
-var mapnik = require('mapnik');
+var mapnik = require('@carto/mapnik');
 var path = require('path');
 var fs = require('fs');
 var tape = require('tape');

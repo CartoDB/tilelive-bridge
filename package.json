@@ -13,7 +13,7 @@
     }
   ],
   "dependencies": {
-    "mapnik": "~3.5.0",
+    "@carto/mapnik": "~3.6.2-carto.0",
     "sphericalmercator": "1.0.x",
     "mapnik-pool": "~0.1.3"
   },
