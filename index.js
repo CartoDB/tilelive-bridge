@@ -303,8 +303,14 @@ Bridge.getVector = function(source, map, z, x, y, callback) {
     // enable strictly_simple
     opts.strictly_simple = true;
 
-    // make zoom_level variable available to mapnik postgis datasource
-    opts.variables = { "zoom_level": z };
+    // make zoom, x, y and bbox variables available to mapnik postgis datasource
+    opts.variables = {
+        zoom_level: z, // for backwards compatibility
+        zoom: z,
+        x: x,
+        y: y,
+        bbox: JSON.stringify(map.extent)
+    };
 
     map.render(vtile, opts, function(err, vtile) {
         source._map.release(map);
