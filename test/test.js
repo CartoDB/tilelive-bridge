@@ -1,7 +1,7 @@
 var Bridge = require('..');
 var path = require('path');
 var fs = require('fs');
-var mapnik = require('mapnik');
+var mapnik = require('@carto/mapnik');
 var zlib = require('zlib');
 var tape = require('tape');
 var UPDATE = process.env.UPDATE;
@@ -98,6 +98,20 @@ var rasterxml = {
             assert.ok(source);
             source.getTile(0,0,1, function(err, buffer, headers) {
                 assert.equal(err.message, 'required parameter y is out of range of possible values based on z value');
+                assert.end();
+            });
+        });
+    });
+    tape('should fail when tile generated is larger than max size', function(assert) {
+        new Bridge({ xml:xml.a, base:path.join(__dirname,'/') }, function(err, source) {
+            // monkeypatch the max tile size
+            source.BRIDGE_MAX_VTILE_BYTES_COMPRESSED = 1;
+            assert.equal(source.BRIDGE_MAX_VTILE_BYTES_COMPRESSED,1);
+            assert.ifError(err);
+            assert.ok(source);
+            source.getTile(0,0,0, function(err, buffer, headers) {
+                assert.equal(err.message, 'Tile >= max allowed size');
+                assert.ok(source.BRIDGE_MAX_VTILE_BYTES_COMPRESSED < buffer.length);
                 assert.end();
             });
         });

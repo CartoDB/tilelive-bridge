@@ -1,17 +1,17 @@
-# Changelog
+# Changlog
 
-## 2.3.1-cdb4
+## 2.5.1
 
- - Do not wait for tile fetching after timeout fires
+ - Reduce mapnik dependency to include ~3.6.0 for any downstream users
 
-## 2.3.1-cdb3
+## 2.5.0
 
- - Do not set encoding header if compression was not required
+ - Add option to limit tiles by size in bytes [#92](https://github.com/mapbox/tilelive-bridge/pull/92)
 
+## 2.4.0
 
-## 2.3.1-cdb2
-
- - Be able to configure buffer size from uri
+ - Updated to use mapnik 3.6.0
+ - Switch to using @mapbox package for spherical mercator
 
 ## 2.3.1
 

@@ -1,9 +1,9 @@
 var url = require('url');
 var path = require('path');
-var mapnik = require('mapnik');
+var mapnik = require('@carto/mapnik');
 var fs = require('fs');
 var qs = require('querystring');
-var sm = new (require('sphericalmercator'))();
+var sm = new (require('@mapbox/sphericalmercator'))();
 var immediate = global.setImmediate || process.nextTick;
 var mapnik_pool = require('mapnik-pool');
 var Pool = mapnik_pool.Pool;
@@ -12,6 +12,19 @@ var timeoutDecorator = require('./utils/timeout-decorator')
 
 // Register datasource plugins
 mapnik.register_default_input_plugins();
+
+// this will run on require, which means downstream users that are registering plugins
+// and include this environment variable will hit this section even if it is not desired
+if (process.env.BRIDGE_LOG_MAX_VTILE_BYTES_COMPRESSED) {
+    var stats = { max:0, total:0, count:0 };
+    process.on('exit', function() {
+        stats.avg = stats.total/stats.count;
+        if (stats.count > 0) {
+            fs.writeFileSync('tilelive-bridge-stats.json', JSON.stringify(stats));
+        }
+    });
+}
+
 
 var mapnikPool = mapnik_pool(mapnik);
 
@@ -32,6 +45,8 @@ var ImagePool = function(size) {
 module.exports = Bridge;
 
 function Bridge(uri, callback) {
+    this.BRIDGE_MAX_VTILE_BYTES_COMPRESSED = process.env.BRIDGE_MAX_VTILE_BYTES_COMPRESSED ? +process.env.BRIDGE_MAX_VTILE_BYTES_COMPRESSED : 0;
+    this.BRIDGE_LOG_MAX_VTILE_BYTES_COMPRESSED = process.env.BRIDGE_LOG_MAX_VTILE_BYTES_COMPRESSED ? +process.env.BRIDGE_LOG_MAX_VTILE_BYTES_COMPRESSED : 0;
     var source = this;
 
     if (typeof uri === 'string' || (uri.protocol && !uri.xml)) {
@@ -288,8 +303,14 @@ Bridge.getVector = function(source, map, z, x, y, callback) {
     // enable strictly_simple
     opts.strictly_simple = true;
 
-    // make zoom_level variable available to mapnik postgis datasource
-    opts.variables = { "zoom_level": z };
+    // make zoom, x, y and bbox variables available to mapnik postgis datasource
+    opts.variables = {
+        zoom_level: z, // for backwards compatibility
+        zoom: z,
+        x: x,
+        y: y,
+        bbox: JSON.stringify(map.extent)
+    };
 
     map.render(vtile, opts, function(err, vtile) {
         source._map.release(map);
@@ -309,6 +330,16 @@ Bridge.getVector = function(source, map, z, x, y, callback) {
                 headers['Content-Encoding'] = 'gzip';
             }
 
+            if (source.BRIDGE_LOG_MAX_VTILE_BYTES_COMPRESSED > 0 && pbfz.length > source.BRIDGE_LOG_MAX_VTILE_BYTES_COMPRESSED) {
+                stats.count++;
+                stats.total = stats.total + (pbfz.length*0.001);
+                if (stats.max < pbfz.length) {
+                    stats.max = pbfz.length;
+                }
+            }
+            if (source.BRIDGE_MAX_VTILE_BYTES_COMPRESSED > 0 && pbfz.length > source.BRIDGE_MAX_VTILE_BYTES_COMPRESSED) {
+                return callback(new Error("Tile >= max allowed size"), pbfz, headers);
+            }
             return callback(err, pbfz, headers);
         });
     });

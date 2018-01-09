@@ -1,6 +1,6 @@
 {
-  "name": "tilelive-bridge",
-  "version": "2.3.1-cdb4",
+  "name": "@carto/tilelive-bridge",
+  "version": "2.5.1-cdb1",
   "main": "./index.js",
   "description": "Datasource => vector tiles bridge backend for tilelive",
   "repository": {
@@ -13,8 +13,8 @@
     }
   ],
   "dependencies": {
-    "mapnik": "~3.5.0",
-    "sphericalmercator": "1.0.x",
+    "@mapbox/sphericalmercator": "~1.0.1",
+    "@carto/mapnik": "~3.6.2-carto.0",
     "mapnik-pool": "~0.1.3"
   },
   "devDependencies": {
