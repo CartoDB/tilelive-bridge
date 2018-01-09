@@ -5,6 +5,7 @@
  - Codebase updated with upstream v2.5.1
  - Update dependencies to use node-mapnik @carto/mapnik ~3.6.2-carto.x
  - Allow substitution of zoom, x, y and bbox variables. See [820f40f](https://github.com/CartoDB/tilelive-bridge/pull/7/commits/820f40fcc7d79e1e70fe72dfec9a1501a1d277be)
+ - Package namespace changed to @carto
 
 ## 2.3.1-cdb4
 
