@@ -14,4 +14,4 @@ addons:
 sudo: false
 
 after_success:
- - if [[ ${TRAVIS_NODE_VERSION} == "0.10" ]]; then npm run coverage; fi;
+ - if [[ ${TRAVIS_NODE_VERSION} == "6" ]]; then npm run coverage; fi;
