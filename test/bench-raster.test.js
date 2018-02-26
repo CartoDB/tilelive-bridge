@@ -2,7 +2,7 @@ var Bridge = require('..');
 var path = require('path');
 var fs = require('fs');
 var tape = require('tape');
-var queue = require('queue-async');
+var d3 = require('d3-queue');
 
 var source;
 
@@ -21,7 +21,7 @@ tape('raster bench', function(assert) {
     var time = +(new Date());
     var total = 0;
     var cpus = require('os').cpus().length;
-    var q = queue(cpus);
+    var q = d3.queue(cpus);
     for (var z = 0; z < 5; z++) {
         for (var x = 0; x < Math.pow(2,z); x++) {
             for (var y = 0; y < Math.pow(2,z); y++) {
