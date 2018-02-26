@@ -9,6 +9,7 @@
  - Update eslint to `4.18.1`
  - Update istambul to `0.4.5`
  - Update tape to `4.9.0`
+ - Point CI badges to our fork
 
 ## 2.5.1-cdb1
 
