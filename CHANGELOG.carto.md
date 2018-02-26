@@ -1,8 +1,14 @@
 # CARTO tilelive-bridge changelog
 
 ## 2.5.1-cdb2
- - Update node-mapnik to 3.6.2-carto.3
-
+ - Update @carto/node-mapnik to `3.6.2-carto.3`
+ - Update @mapbox/sphericalmercator to `1.0.5`
+ - Update coveralls to `3.0.0`
+ - Change queue-async for d3-queue `3.0.7`
+ - Update deep-equal to `1.0.1`
+ - Update eslint to `4.18.1`
+ - Update istambul to `0.4.5`
+ - Update tape to `4.9.0`
 
 ## 2.5.1-cdb1
 
