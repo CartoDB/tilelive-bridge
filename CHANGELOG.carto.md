@@ -1,5 +1,9 @@
 # CARTO tilelive-bridge changelog
 
+## 2.5.1-cdb2
+ - Update node-mapnik to 3.6.2-carto.3
+
+
 ## 2.5.1-cdb1
 
  - Codebase updated with upstream v2.5.1
