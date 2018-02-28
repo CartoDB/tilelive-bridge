@@ -3,7 +3,7 @@ var mapnik = require('@carto/mapnik');
 var path = require('path');
 var fs = require('fs');
 var tape = require('tape');
-var d3 = require('d3-queue');
+var queue = require('queue-async');
 
 var source_deferred;
 var rate_deferred;
@@ -24,7 +24,7 @@ tape('vector bench deferred', function(assert) {
     var time = +(new Date());
     var total = 0;
     var empty = 0;
-    var q = d3.queue(1);
+    var q = queue(1);
     for (var z = 0; z < 5; z++) {
         for (var x = 0; x < Math.pow(2,z); x++) {
             for (var y = 0; y < Math.pow(2,z); y++) {
@@ -45,7 +45,7 @@ tape('vector bench deferred', function(assert) {
                     assert.ifError(err, z + '/' + x + '/' + y);
                     done(null, buffer)
                 });
-            }
+            }   
         });
     }
     q.awaitAll(function(err, res) {
@@ -86,7 +86,7 @@ tape('vector bench auto', function(assert) {
     var time = +(new Date());
     var total = 0;
     var empty = 0;
-    var q = d3.queue(1);
+    var q = queue(1);
     for (var z = 0; z < 5; z++) {
         for (var x = 0; x < Math.pow(2,z); x++) {
             for (var y = 0; y < Math.pow(2,z); y++) {
@@ -145,7 +145,7 @@ tape('vector bench async', function(assert) {
     var time = +(new Date());
     var total = 0;
     var empty = 0;
-    var q = d3.queue(1);
+    var q = queue(1);
     for (var z = 0; z < 5; z++) {
         for (var x = 0; x < Math.pow(2,z); x++) {
             for (var y = 0; y < Math.pow(2,z); y++) {
