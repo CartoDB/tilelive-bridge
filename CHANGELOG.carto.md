@@ -1,5 +1,9 @@
 # CARTO tilelive-bridge changelog
 
+## 2.5.1-cdb3
+ - Revert module updates from 2.5.1-cdb2
+
+
 ## 2.5.1-cdb2
  - Update @carto/node-mapnik to `3.6.2-carto.3`
  - Update @mapbox/sphericalmercator to `1.0.5`
