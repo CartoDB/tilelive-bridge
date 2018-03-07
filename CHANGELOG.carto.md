@@ -2,7 +2,7 @@
 
 ## 2.5.1-cdb3
  - Revert module updates from 2.5.1-cdb2
-
+ - Set @carto/mapnik to `3.6.2-carto.2`
 
 ## 2.5.1-cdb2
  - Update @carto/node-mapnik to `3.6.2-carto.3`
