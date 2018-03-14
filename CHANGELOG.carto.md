@@ -1,6 +1,9 @@
 # CARTO tilelive-bridge changelog
 
 ## 2.5.1-cdb3
+ - Set @carto/mapnik to `3.6.2-carto.4`, which includes improvements for the cache for raster symbols. See the [changelog](https://github.com/CartoDB/node-mapnik/blob/v3.6.2-carto/CHANGELOG.carto.md#362-carto4)
+
+## 2.5.1-cdb3
  - Revert module updates from 2.5.1-cdb2
  - Set @carto/mapnik to `3.6.2-carto.2`
 
