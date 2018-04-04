@@ -12,7 +12,7 @@ Implements the tilelive API for generating mapnik vector tiles from traditional 
 
 ## Installation
 
-    npm install @carto/tilelive-bridge
+    yarn install @carto/tilelive-bridge
 
 Though `tilelive` is not a dependency of `tilelive-bridge` you will want to
 install it to actually make use of `tilelive-bridge` through a reasonable
