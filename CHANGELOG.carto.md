@@ -1,5 +1,8 @@
 # CARTO tilelive-bridge changelog
 
+## 2.5.1-cdb6
+ - Set @carto/mapnik to [`3.6.2-carto.7`](https://github.com/CartoDB/node-mapnik/blob/v3.6.2-carto/CHANGELOG.carto.md#362-carto7)
+
 ## 2.5.1-cdb5
  - Set @carto/mapnik to [`3.6.2-carto.6`](https://github.com/CartoDB/node-mapnik/blob/v3.6.2-carto/CHANGELOG.carto.md#362-carto6)
 
