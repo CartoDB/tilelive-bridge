@@ -275,28 +275,9 @@ Bridge.getVector = function(source, map, z, x, y, callback) {
 
     map.extent = vtile.extent();
 
-    /*
-        Simplification works to generalize geometries before encoding into vector tiles.
-
-        The 'simplify_distance' value works in integer space over a 4096 pixel grid and uses
-        the Douglas-Peucker algorithm.
-
-        The 4096 results from the path_multiplier used to maintain precision (default of 16)
-        and tile width (default of 256)
-
-        A simplify_distance of <= 0 disables the DP simplification in mapnik-vector-tile, however
-        be aware that geometries will still end up being generalized based on conversion to integers during encoding.
-
-        The greater the value the higher the level of generalization.
-
-        The goal is to simplify enough to reduce the encoded geometry size without noticeable visual impact.
-
-        A value of 4 is used below maxzoom and was chosen for detail when using mapbox-gl-js (with legacy rendering, 8 does ok as well)
-
-        A value of 1 is used at maxzoom and above. The idea is that 1 will throw out nearly coincident points while
-        having negligible visual impact even if the tile is overzoomed (but this warrants more testing).
-    */
-    opts.simplify_distance = z < source._maxzoom ? 4 : 1;
+    // Since we (CARTO) are already simplifying the geometries in the Postgresql query
+    // we don't want another simplification as it will have a visual impact
+    opts.simplify_distance = 0;
 
     opts.threading_mode = source._threading_mode;
 
