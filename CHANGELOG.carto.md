@@ -1,5 +1,8 @@
 # CARTO tilelive-bridge changelog
 
+## 2.5.1-cdb9
+ - Set @carto/mapnik to [`3.6.2-carto.10`](https://github.com/CartoDB/node-mapnik/blob/v3.6.2-carto/CHANGELOG.carto.md#362-carto10)
+
 ## 2.5.1-cdb8
  - Set @carto/mapnik to [`3.6.2-carto.9`](https://github.com/CartoDB/node-mapnik/blob/v3.6.2-carto/CHANGELOG.carto.md#362-carto9)
  - Force simplify_distance to 0 (Not needed since we already simplify geometries in the query)
