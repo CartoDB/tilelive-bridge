@@ -272,7 +272,7 @@ function compare_vtiles(assert,filepath,vtile1,vtile2) {
                 sources[source].getTile(z,x,y, function(err, buffer, headers) {
                     // Test that empty tiles are so.
                     if (obj.empty) {
-                        assert.equal(err.message, 'Tile does not exist');
+                        assert.equal(buffer.length, 0);
                         assert.equal(headers['x-tilelive-contains-data'], false);
                         return assert.end();
                     }
@@ -347,7 +347,7 @@ function compare_vtiles(assert,filepath,vtile1,vtile2) {
                 sources[source].getTile(z,x,y, function(err, buffer, headers) {
                     // Test that empty tiles are so.
                     if (obj.empty) {
-                        assert.equal(err.message, 'Tile does not exist');
+                        assert.equal(buffer.length, 0);
                         return assert.end();
                     }
 

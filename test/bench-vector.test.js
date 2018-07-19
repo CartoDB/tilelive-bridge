@@ -35,8 +35,8 @@ tape('vector bench deferred', function(assert) {
     }
     function getTile(z, x, y, done) {
         source.getTile(z, x, y, function(err, buffer) {
-            if (err) {
-                assert.equal(err.message, 'Tile does not exist', z + '/' + x + '/' + y);
+            assert.ok(!err, err);
+            if (!buffer.length) {
                 empty++;
                 done(null, buffer);
             } else {
@@ -45,7 +45,7 @@ tape('vector bench deferred', function(assert) {
                     assert.ifError(err, z + '/' + x + '/' + y);
                     done(null, buffer)
                 });
-            }   
+            }
         });
     }
     q.awaitAll(function(err, res) {
@@ -97,8 +97,8 @@ tape('vector bench auto', function(assert) {
     }
     function getTile(z, x, y, done) {
         source.getTile(z, x, y, function(err, buffer) {
-            if (err) {
-                assert.equal(err.message, 'Tile does not exist', z + '/' + x + '/' + y);
+            assert.ok(!err, err);
+            if (!buffer.length) {
                 empty++;
                 done(null, buffer);
             } else {
@@ -156,8 +156,8 @@ tape('vector bench async', function(assert) {
     }
     function getTile(z, x, y, done) {
         source.getTile(z, x, y, function(err, buffer) {
-            if (err) {
-                assert.equal(err.message, 'Tile does not exist', z + '/' + x + '/' + y);
+            assert.ok(!err, err);
+            if (!buffer.length) {
                 empty++;
                 done(null, buffer);
             } else {
@@ -166,7 +166,7 @@ tape('vector bench async', function(assert) {
                     assert.ifError(err, z + '/' + x + '/' + y);
                     done(null, buffer)
                 });
-            }   
+            }
         });
     }
     q.awaitAll(function(err, res) {
