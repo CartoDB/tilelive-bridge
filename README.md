@@ -3,7 +3,6 @@ tilelive-bridge
 Implements the tilelive API for generating mapnik vector tiles from traditional mapnik datasources.
 
 [![Build Status](https://secure.travis-ci.org/CartoDB/tilelive-bridge.png)](http://travis-ci.org/CartoDB/tilelive-bridge)
-[![Coverage Status](https://coveralls.io/repos/CartoDB/tilelive-bridge/badge.svg?branch=cdb-2.x&service=github)](https://coveralls.io/github/CartoDB/tilelive-bridge?branch=cdb-2.x)
 
 ### new Bridge(options, callback)
 
