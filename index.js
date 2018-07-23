@@ -232,7 +232,7 @@ Bridge.getRaster = function(source, map, im, z, x, y, callback) {
 
             // If source is in blank mode any solid tile is empty.
             if (solid && source._blank) {
-                return callback(err, new Buffer(0));
+                return callback(null, new Buffer(0));
             }
 
             var pixel_key = '';
