@@ -232,7 +232,7 @@ Bridge.getRaster = function(source, map, im, z, x, y, callback) {
 
             // If source is in blank mode any solid tile is empty.
             if (solid && source._blank) {
-                return callback(new Error('Tile does not exist'));
+                return callback(null, new Buffer(0));
             }
 
             var pixel_key = '';
@@ -300,7 +300,7 @@ Bridge.getVector = function(source, map, z, x, y, callback) {
         }
         headers['x-tilelive-contains-data'] = vtile.painted();
         if (vtile.empty()) {
-            return callback(new Error('Tile does not exist'), null, headers);
+            return callback(null, new Buffer(0), headers);
         }
         vtile.getData({ compression: source._gzip ? 'gzip' : 'none' }, function(err, pbfz) {
             if (err) {
