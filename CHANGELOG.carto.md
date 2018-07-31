@@ -3,6 +3,7 @@
 ## 2.5.1-cdb10
  - Update or remove dev dependencies.
  - **Remove error on empty tile**. Instead an empty buffer is returned. For MVTs the `x-tilelive-contains-data` header will still be set to false.
+ - Update @carto/mapnik to [`3.6.2-carto.11`](https://github.com/CartoDB/node-mapnik/blob/v3.6.2-carto.11/CHANGELOG.carto.md#362-carto11). Includes a change in mapnik-vector-tile to simplify based on layer extent.
 
 ## 2.5.1-cdb9
  - Set @carto/mapnik to [`3.6.2-carto.10`](https://github.com/CartoDB/node-mapnik/blob/v3.6.2-carto/CHANGELOG.carto.md#362-carto10)
