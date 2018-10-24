@@ -7,7 +7,7 @@ var fs = require('fs');
 var tape = require('tape');
 var queue = require('queue-async');
 
-var source_deferred;
+var source;
 var rate_deferred;
 var rate_auto;
 
@@ -175,7 +175,7 @@ tape('vector bench async', function(assert) {
         assert.ifError(err);
         source.close(function() {
             time = +(new Date()) - time;
-            rate_async = total/(time/1000);
+            var rate_async = total/(time/1000);
             // only assert on rate for release builds
             if (process.env.NPM_FLAGS && process.env.NPM_FLAGS.indexOf('--debug') > -1) {
                 console.log("Skipping rate assertion, since we are running in debug mode");
