@@ -1,3 +1,5 @@
+'use strict';
+
 var Bridge = require('..');
 var path = require('path');
 var fs = require('fs');

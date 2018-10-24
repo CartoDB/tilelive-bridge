@@ -1,3 +1,5 @@
+'use strict';
+
 var Bridge = require('..');
 var mapnik = require('@carto/mapnik');
 var path = require('path');
@@ -67,7 +69,7 @@ tape('vector bench deferred', function(assert) {
 });
 
 // Currently there is a bug in std::future in xcode that will be fixed in 7.3 release
-// until that point the binaries built in OSX could possibly cause memory corruption 
+// until that point the binaries built in OSX could possibly cause memory corruption
 // when using non deferred processing (like a terrorist) when that is fixed this can be removed.
 if (process.platform != 'darwin') {
 
@@ -107,7 +109,7 @@ tape('vector bench auto', function(assert) {
                     assert.ifError(err, z + '/' + x + '/' + y);
                     done(null, buffer)
                 });
-            }   
+            }
         });
     }
     q.awaitAll(function(err, res) {

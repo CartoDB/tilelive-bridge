@@ -1,3 +1,5 @@
+'use strict';
+
 var Bridge = require('..');
 var path = require('path');
 var fs = require('fs');
@@ -51,4 +53,3 @@ tape('raster bench', function(assert) {
         })
     });
 });
-
