@@ -1,5 +1,8 @@
 # CARTO tilelive-bridge changelog
 
+## 2.5.1-cdb11
+ - Make all modules to use strict mode semantics.
+
 ## 2.5.1-cdb10
  - Update or remove dev dependencies.
  - **Remove error on empty tile**. Instead an empty buffer is returned. For MVTs the `x-tilelive-contains-data` header will still be set to false.
