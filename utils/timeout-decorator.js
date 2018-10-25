@@ -1,3 +1,5 @@
+'use strict';
+
 module.exports = function timeoutDecorator(fn, ms) {
   return function () {
     var timeout = false;

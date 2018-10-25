@@ -1,3 +1,5 @@
+'use strict';
+
 var url = require('url');
 var path = require('path');
 var mapnik = require('@carto/mapnik');
@@ -38,7 +40,8 @@ var ImagePool = function(size) {
         return callback(null,new mapnik.Image(size,size));
     }
     function destroy(im) {
-        delete im;
+        // see: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Errors/Delete_in_strict_mode
+        im = null;
     }
 }
 

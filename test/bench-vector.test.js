@@ -1,3 +1,5 @@
+'use strict';
+
 var Bridge = require('..');
 var mapnik = require('@carto/mapnik');
 var path = require('path');
@@ -5,7 +7,7 @@ var fs = require('fs');
 var tape = require('tape');
 var queue = require('queue-async');
 
-var source_deferred;
+var source;
 var rate_deferred;
 var rate_auto;
 
@@ -67,7 +69,7 @@ tape('vector bench deferred', function(assert) {
 });
 
 // Currently there is a bug in std::future in xcode that will be fixed in 7.3 release
-// until that point the binaries built in OSX could possibly cause memory corruption 
+// until that point the binaries built in OSX could possibly cause memory corruption
 // when using non deferred processing (like a terrorist) when that is fixed this can be removed.
 if (process.platform != 'darwin') {
 
@@ -107,7 +109,7 @@ tape('vector bench auto', function(assert) {
                     assert.ifError(err, z + '/' + x + '/' + y);
                     done(null, buffer)
                 });
-            }   
+            }
         });
     }
     q.awaitAll(function(err, res) {
@@ -173,7 +175,7 @@ tape('vector bench async', function(assert) {
         assert.ifError(err);
         source.close(function() {
             time = +(new Date()) - time;
-            rate_async = total/(time/1000);
+            var rate_async = total/(time/1000);
             // only assert on rate for release builds
             if (process.env.NPM_FLAGS && process.env.NPM_FLAGS.indexOf('--debug') > -1) {
                 console.log("Skipping rate assertion, since we are running in debug mode");
