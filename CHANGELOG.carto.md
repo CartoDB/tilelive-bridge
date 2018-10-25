@@ -1,5 +1,8 @@
 # CARTO tilelive-bridge changelog
 
+## 2.5.1-cdb12
+
+
 ## 2.5.1-cdb11
  - Make all modules to use strict mode semantics.
 
