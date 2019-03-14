@@ -70,34 +70,22 @@ function Bridge(uri, callback) {
         this.getTile = timeoutDecorator(this.getTile.bind(this), this._uri.limits.render);
     }
 
-    this.update(uri, callback);
-}
-
-Bridge.registerProtocols = function(tilelive) {
-    tilelive.protocols['bridge:'] = Bridge;
-};
-
-// Allows in-place update of XML/backends.
-Bridge.prototype.update = function(opts, callback) {
     // Unset maxzoom. Will be re-set on first getTile.
     this._maxzoom = undefined;
     // Unset type. Will be re-set on first getTile.
     this._type = undefined;
-    this._xml = opts.xml;
-    this._readonly_map = new mapnik.Map(1,1);
+    this._xml = uri.xml;
+
     var mopts = { strict: false, base: this._base + '/' };
-    this._readonly_map.fromString(this._xml,mopts,function(err) {
-        if (err) {
-            return callback(err);
-        }
-        this.close(function() {
-            this._map = mapnikPool.fromString(this._xml,
-                { size: 256, bufferSize: this._bufferSize },
-                mopts);
-            this._im = ImagePool(512);
-            return callback(null, this);
-        }.bind(this));
-    }.bind(this));
+
+    this._map = mapnikPool.fromString(this._xml, { size: 256, bufferSize: this._bufferSize }, mopts);
+    this._im = ImagePool(512);
+
+    return callback(null, this);
+}
+
+Bridge.registerProtocols = function(tilelive) {
+    tilelive.protocols['bridge:'] = Bridge;
 };
 
 function poolDrain(pool,callback) {
@@ -120,6 +108,7 @@ Bridge.prototype.close = function(callback) {
         callback();
         callback = false;
     }, 5000);
+
     poolDrain(this._map,function() {
         poolDrain(this._im,function() {
             if (!callback) return;
@@ -286,53 +275,4 @@ Bridge.getVector = function(source, map, z, x, y, callback) {
             return callback(err, pbfz, headers);
         });
     });
-};
-
-Bridge.prototype.getInfo = function(callback) {
-    var map = this._readonly_map;
-    if (!map) {
-        return callback(new Error('Tilesource not loaded'));
-    }
-
-    var params = map.parameters;
-    var info = Object.keys(params).reduce(function(memo, key) {
-        switch (key) {
-        // The special 'json' key/value pair allows JSON to be serialized
-        // and merged into the metadata of a mapnik XML based source. This
-        // enables nested properties and non-string datatypes to be
-        // captured by mapnik XML.
-        case 'json':
-            try {
-                var jsondata = JSON.parse(params[key]);
-                Object.keys(jsondata).reduce(function(memo, key) {
-                    memo[key] = memo[key] || jsondata[key];
-                    return memo;
-                }, memo);
-            }
-            catch (err) { return callback(err); }
-            break;
-        case 'bounds':
-        case 'center':
-            memo[key] = params[key].split(',').map(function(v) { return parseFloat(v) });
-            break;
-        default:
-            memo[key] = params[key];
-            break;
-        }
-        return memo;
-    }, {});
-
-    // Set an intelligent default for geocoder_shardlevel if not set.
-    if (info.geocoder_layer && !('geocoder_shardlevel' in info)) {
-        if (info.maxzoom > 12) {
-            info.geocoder_shardlevel = 3;
-        } else if (info.maxzoom > 8) {
-            info.geocoder_shardlevel = 2;
-        } else if (info.maxzoom > 6) {
-            info.geocoder_shardlevel = 1;
-        } else {
-            info.geocoder_shardlevel = 0;
-        }
-    }
-    return callback(null, info);
 };

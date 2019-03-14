@@ -8,7 +8,6 @@ var zlib = require('zlib');
 var tape = require('tape');
 var UPDATE = process.env.UPDATE;
 var deepEqual = require('deep-equal');
-var util = require('util');
 var mapnik_pool = require('mapnik-pool');
 var mapnikPool = mapnik_pool(mapnik);
 
@@ -27,22 +26,6 @@ var rasterxml = {
 };
 
 (function() {
-    [[13, 3], [9, 2], [7, 1], [6, 0]].forEach(function(maxzoomAndExpectedShardLevel) {
-        tape(util.format('index setup - zoomlevel %d produces expected shardlevel %d', maxzoomAndExpectedShardLevel[0], maxzoomAndExpectedShardLevel[1]), function(assert) {
-            new Bridge({ xml:xml.carmen_a.replace('{{MAXZOOM}}', maxzoomAndExpectedShardLevel[0]), base:path.join(__dirname,'/'), blank:true }, function(err, s) {
-                assert.ifError(err, 'created Bridge object w/o error');
-                s.getInfo(function(err, info) {
-                    assert.ifError(err, 'fetched Bridge source info w/o error');
-                    assert.equals(info.geocoder_shardlevel, maxzoomAndExpectedShardLevel[1], 'found expected shardlevel (based on maxzoom)');
-                    assert.end();
-                });
-            });
-        });
-    });
-})();
-
-
-(function() {
     tape('should set protocol as we would like', function(assert) {
         var fake_tilelive = {
             protocols: {}
@@ -58,9 +41,11 @@ var rasterxml = {
         });
     });
     tape('should fail with invalid xml', function(assert) {
-        new Bridge({xml: 'bogus'}, function(err) {
-            assert.equal(err.message, 'expected < at line 1');
-            assert.end();
+        new Bridge({xml: 'bogus'}, function (err, source) {
+            source.getTile(0,0,0, function (err) {
+                assert.equal(err.message, 'expected < at line 1');
+                assert.end();
+            });
         });
     });
     tape('should fail with invalid xml at map.acquire', function(assert) {
@@ -110,47 +95,6 @@ var rasterxml = {
             source.close(function() {
                 assert.end();
             })
-        });
-    });
-    tape('should get info', function(assert) {
-        new Bridge({ xml: xml.a, base:path.join(__dirname,'/') }, function(err, source) {
-            assert.ifError(err);
-            assert.ok(source);
-            source.getInfo(function(err, info) {
-                assert.ifError(err);
-                assert.equal('test-a', info.name);
-                assert.equal(0, info.minzoom);
-                assert.equal(8, info.maxzoom);
-                assert.equal(0, info.geocoder_resolution);
-                assert.equal(1, info.geocoder_shardlevel);
-                assert.deepEqual([0,0,2], info.center);
-                assert.deepEqual([-180,-85.0511,180,85.0511], info.bounds);
-                assert.deepEqual({"level2":"property"}, info.level1, 'JSON key stores deep attribute data');
-                assert.deepEqual(0, info.minzoom, 'JSON key does not overwrite other params');
-                source.close(function() {
-                    assert.end();
-                })
-            });
-        });
-    });
-    tape('should update xml', function(assert) {
-        new Bridge({ xml: xml.a, base:path.join(__dirname,'/') }, function(err, source) {
-            assert.ifError(err);
-            assert.ok(source);
-            source.getInfo(function(err, info) {
-                assert.ifError(err);
-                assert.equal('test-a', info.name);
-                source.update({xml:xml.b}, function(err) {
-                    assert.ifError(err);
-                    source.getInfo(function(err, info) {
-                        assert.ifError(err);
-                        assert.equal('test-b', info.name);
-                        source.close(function() {
-                            assert.end();
-                        })
-                    });
-                });
-            });
         });
     });
 })();
