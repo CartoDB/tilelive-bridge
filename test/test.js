@@ -124,19 +124,6 @@ var rasterxml = {
             })
         });
     });
-    tape('should load with listener', function(assert) {
-        var source = new Bridge('bridge://' + path.resolve(path.join(__dirname,'/test-a.xml')));
-        source.on('open', function(err) {
-            assert.ifError(err);
-            assert.ok(source);
-            assert.equal(source._blank, false);
-            assert.equal(source._xml, xml.a);
-            assert.equal(source._base, __dirname);
-            source.close(function() {
-                assert.end();
-            })
-        });
-    });
     tape('should load query params', function(assert) {
         new Bridge('bridge://' + path.resolve(path.join(__dirname,'/test-a.xml?blank=1')), function(err, source) {
             assert.ifError(err);
@@ -146,19 +133,6 @@ var rasterxml = {
             source.close(function() {
                 assert.end();
             })
-        });
-    });
-    tape('#open should call all listeners', function(assert) {
-        var b = new Bridge({ xml: xml.a, base:path.join(__dirname,'/') });
-        var remaining = 3;
-        for (var i = 0, l = remaining; i < l; i++) b.open(function(err, source) {
-            assert.ifError(err);
-            assert.ok(source);
-            if (!--remaining) {
-                source.close(function() {
-                    assert.end();
-                })
-            }
         });
     });
     tape('should get info', function(assert) {
@@ -232,9 +206,9 @@ function compare_vtiles(assert,filepath,vtile1,vtile2) {
 
 (function() {
     var sources = {
-        a: new Bridge({ xml:xml.a, base:path.join(__dirname,'/'), blank:true }),
-        b: new Bridge({ xml:xml.b, base:path.join(__dirname,'/') }),
-        c: new Bridge({ xml:xml.a, base:path.join(__dirname,'/'), blank:false })
+        a: { xml:xml.a, base:path.join(__dirname,'/'), blank:true },
+        b: { xml:xml.b, base:path.join(__dirname,'/') },
+        c: { xml:xml.a, base:path.join(__dirname,'/'), blank:false }
     };
     var tests = {
         a: ['0.0.0', '1.0.0', '1.0.1', {key:'10.0.0',empty:true}, {key:'10.765.295'}],
@@ -243,7 +217,7 @@ function compare_vtiles(assert,filepath,vtile1,vtile2) {
     };
     Object.keys(tests).forEach(function(source) {
         tape('setup', function(assert) {
-            sources[source].open(function(err) {
+            sources[source] = new Bridge(sources[source], function(err) {
                 assert.ifError(err);
                 assert.end();
             });
@@ -307,9 +281,9 @@ function compare_vtiles(assert,filepath,vtile1,vtile2) {
 
 (function() {
     var sources = {
-        a: new Bridge({ xml:rasterxml.a, base:path.join(__dirname,'/'), blank:true }),
-        b: new Bridge({ xml:rasterxml.b, base:path.join(__dirname,'/'), blank:true }),
-        c: new Bridge({ xml:rasterxml.c, base:path.join(__dirname,'/'), blank:false })
+        a: { xml:rasterxml.a, base:path.join(__dirname,'/'), blank:true },
+        b: { xml:rasterxml.b, base:path.join(__dirname,'/'), blank:true },
+        c: { xml:rasterxml.c, base:path.join(__dirname,'/'), blank:false }
     };
     var tests = {
         a: ['0.0.0', '1.0.0', '2.1.1', '3.2.2', '4.3.3', '5.4.4'],
@@ -318,7 +292,7 @@ function compare_vtiles(assert,filepath,vtile1,vtile2) {
     };
     Object.keys(tests).forEach(function(source) {
         tape('setup', function(assert) {
-            sources[source].open(function(err) {
+            sources[source] = new Bridge(sources[source], function(err) {
                 assert.ifError(err);
                 assert.end();
             });
@@ -403,8 +377,8 @@ function compare_vtiles(assert,filepath,vtile1,vtile2) {
     });
 
     var sources = {
-        a: new Bridge({ xml: xml.c, base: path.join(__dirname,'/'), query: {bufferSize: 0}}),
-        b: new Bridge({ xml: xml.c, base: path.join(__dirname,'/'), query: {bufferSize: 64}}),
+        a: { xml: xml.c, base: path.join(__dirname,'/'), query: {bufferSize: 0}},
+        b: { xml: xml.c, base: path.join(__dirname,'/'), query: {bufferSize: 64}},
     };
 
     var tests = {
@@ -414,7 +388,7 @@ function compare_vtiles(assert,filepath,vtile1,vtile2) {
 
     Object.keys(tests).forEach(function(source) {
         tape('setup', function(assert) {
-            sources[source].open(function(err) {
+            sources[source] = new Bridge(sources[source], function(err) {
                 assert.ifError(err);
                 assert.end();
             });
@@ -489,7 +463,7 @@ function compare_vtiles(assert,filepath,vtile1,vtile2) {
     });
 
     var sources = {
-        a: new Bridge({
+        a: {
             xml: xml.c,
             base: path.join(__dirname,'/'), query: {
                 bufferSize: 64,
@@ -497,7 +471,7 @@ function compare_vtiles(assert,filepath,vtile1,vtile2) {
                     render: 1
                 }
             }
-        })
+        }
     };
 
     var tests = {
@@ -506,7 +480,7 @@ function compare_vtiles(assert,filepath,vtile1,vtile2) {
 
     Object.keys(tests).forEach(function(source) {
         tape('setup', function(assert) {
-            sources[source].open(function(err) {
+            sources[source] = new Bridge(sources[source], function(err) {
                 assert.ifError(err);
                 assert.end();
             });

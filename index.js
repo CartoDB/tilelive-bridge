@@ -71,7 +71,6 @@ function Bridge(uri, callback) {
         return source;
     }
 }
-require('util').inherits(Bridge, require('events').EventEmitter);
 
 function init(source, uri, callback) {
     if (!uri.xml) {
@@ -96,26 +95,12 @@ function init(source, uri, callback) {
         source.getTile = timeoutDecorator(source.getTile.bind(source), source._uri.limits.render);
     }
 
-    if (callback) source.once('open', callback);
-
-    source.update(uri, function(err) {
-        source.emit('open', err, source);
-    });
+    source.update(uri, callback);
 }
 
 
 Bridge.registerProtocols = function(tilelive) {
     tilelive.protocols['bridge:'] = Bridge;
-};
-
-// Helper for callers to ensure source is open. This is not built directly
-// into the constructor because there is no good auto cache-keying system
-// for these tile sources (ie. sharing/caching is best left to the caller).
-Bridge.prototype.open = function(callback) {
-    if (this._map) {
-        return callback(null, this);
-    }
-    this.once('open', callback);
 };
 
 // Allows in-place update of XML/backends.
@@ -136,7 +121,7 @@ Bridge.prototype.update = function(opts, callback) {
                 { size: 256, bufferSize: this._bufferSize },
                 mopts);
             this._im = ImagePool(512);
-            return callback();
+            return callback(null, this);
         }.bind(this));
     }.bind(this));
 };
