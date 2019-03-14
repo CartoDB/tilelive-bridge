@@ -64,45 +64,46 @@ function Bridge(uri, callback) {
                 memo[key] = !!parseInt(uri.query[key], 10);
                 return memo;
             }, {xml:xml, base:path.dirname(filepath)});
-            init(opts);
+            init(source, opts, callback);
         });
         return source;
     } else {
-        init(uri);
+        init(source, uri, callback);
         return source;
-    }
-
-    function init(uri) {
-        if (!uri.xml) {
-            return callback && callback(new Error('No xml'));
-        }
-
-        source._uri = uri;
-        source._base = path.resolve(uri.base || __dirname);
-
-        // 'blank' option forces all solid tiles to be interpreted as blank.
-        source._blank = typeof uri.blank === 'boolean' ? uri.blank : false;
-
-        // whether to compress the vector tiles or not
-        source._gzip = typeof uri.gzip === 'boolean' ? uri.gzip : true;
-
-        source._bufferSize = (uri.query && Number.isFinite(uri.query.bufferSize) && uri.query.bufferSize >= 0) ? uri.query.bufferSize : 256;
-
-        source._uri.limits = (uri.query && uri.query.limits) ? uri.query.limits : {};
-        if (typeof source._uri.limits.render === 'undefined') source._uri.limits.render = 0;
-
-        if (source._uri.limits.render > 0) {
-            source.getTile = timeoutDecorator(source.getTile.bind(source), source._uri.limits.render);
-        }
-
-        if (callback) source.once('open', callback);
-
-        source.update(uri, function(err) {
-            source.emit('open', err, source);
-        });
     }
 }
 require('util').inherits(Bridge, require('events').EventEmitter);
+
+function init(source, uri, callback) {
+    if (!uri.xml) {
+        return callback && callback(new Error('No xml'));
+    }
+
+    source._uri = uri;
+    source._base = path.resolve(uri.base || __dirname);
+
+    // 'blank' option forces all solid tiles to be interpreted as blank.
+    source._blank = typeof uri.blank === 'boolean' ? uri.blank : false;
+
+    // whether to compress the vector tiles or not
+    source._gzip = typeof uri.gzip === 'boolean' ? uri.gzip : true;
+
+    source._bufferSize = (uri.query && Number.isFinite(uri.query.bufferSize) && uri.query.bufferSize >= 0) ? uri.query.bufferSize : 256;
+
+    source._uri.limits = (uri.query && uri.query.limits) ? uri.query.limits : {};
+    if (typeof source._uri.limits.render === 'undefined') source._uri.limits.render = 0;
+
+    if (source._uri.limits.render > 0) {
+        source.getTile = timeoutDecorator(source.getTile.bind(source), source._uri.limits.render);
+    }
+
+    if (callback) source.once('open', callback);
+
+    source.update(uri, function(err) {
+        source.emit('open', err, source);
+    });
+}
+
 
 Bridge.registerProtocols = function(tilelive) {
     tilelive.protocols['bridge:'] = Bridge;
