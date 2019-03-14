@@ -1,10 +1,8 @@
 'use strict';
 
-var url = require('url');
 var path = require('path');
 var mapnik = require('@carto/mapnik');
 var fs = require('fs');
-var qs = require('querystring');
 var sm = new (require('@mapbox/sphericalmercator'))();
 var mapnik_pool = require('mapnik-pool');
 var Pool = mapnik_pool.Pool;
@@ -49,55 +47,31 @@ module.exports = Bridge;
 function Bridge(uri, callback) {
     this.BRIDGE_MAX_VTILE_BYTES_COMPRESSED = process.env.BRIDGE_MAX_VTILE_BYTES_COMPRESSED ? +process.env.BRIDGE_MAX_VTILE_BYTES_COMPRESSED : 0;
     this.BRIDGE_LOG_MAX_VTILE_BYTES_COMPRESSED = process.env.BRIDGE_LOG_MAX_VTILE_BYTES_COMPRESSED ? +process.env.BRIDGE_LOG_MAX_VTILE_BYTES_COMPRESSED : 0;
-    var source = this;
 
-    if (typeof uri === 'string' || (uri.protocol && !uri.xml)) {
-        uri = typeof uri === 'string' ? url.parse(uri) : uri;
-        uri.query = typeof uri.query === 'string' ? qs.parse(uri.query) : (uri.query || {});
-        var filepath = path.resolve(uri.pathname);
-        fs.readFile(filepath, 'utf8', function(err, xml) {
-            if (err) {
-                return callback(err);
-            }
-            var opts = Object.keys(uri.query).reduce(function(memo, key) {
-                memo[key] = !!parseInt(uri.query[key], 10);
-                return memo;
-            }, {xml:xml, base:path.dirname(filepath)});
-            init(source, opts, callback);
-        });
-        return source;
-    } else {
-        init(source, uri, callback);
-        return source;
-    }
-}
-
-function init(source, uri, callback) {
     if (!uri.xml) {
         return callback && callback(new Error('No xml'));
     }
 
-    source._uri = uri;
-    source._base = path.resolve(uri.base || __dirname);
+    this._uri = uri;
+    this._base = path.resolve(uri.base || __dirname);
 
     // 'blank' option forces all solid tiles to be interpreted as blank.
-    source._blank = typeof uri.blank === 'boolean' ? uri.blank : false;
+    this._blank = typeof uri.blank === 'boolean' ? uri.blank : false;
 
     // whether to compress the vector tiles or not
-    source._gzip = typeof uri.gzip === 'boolean' ? uri.gzip : true;
+    this._gzip = typeof uri.gzip === 'boolean' ? uri.gzip : true;
 
-    source._bufferSize = (uri.query && Number.isFinite(uri.query.bufferSize) && uri.query.bufferSize >= 0) ? uri.query.bufferSize : 256;
+    this._bufferSize = (uri.query && Number.isFinite(uri.query.bufferSize) && uri.query.bufferSize >= 0) ? uri.query.bufferSize : 256;
 
-    source._uri.limits = (uri.query && uri.query.limits) ? uri.query.limits : {};
-    if (typeof source._uri.limits.render === 'undefined') source._uri.limits.render = 0;
+    this._uri.limits = (uri.query && uri.query.limits) ? uri.query.limits : {};
+    if (typeof this._uri.limits.render === 'undefined') this._uri.limits.render = 0;
 
-    if (source._uri.limits.render > 0) {
-        source.getTile = timeoutDecorator(source.getTile.bind(source), source._uri.limits.render);
+    if (this._uri.limits.render > 0) {
+        this.getTile = timeoutDecorator(this.getTile.bind(this), this._uri.limits.render);
     }
 
-    source.update(uri, callback);
+    this.update(uri, callback);
 }
-
 
 Bridge.registerProtocols = function(tilelive) {
     tilelive.protocols['bridge:'] = Bridge;

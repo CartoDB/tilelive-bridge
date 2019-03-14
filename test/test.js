@@ -112,29 +112,6 @@ var rasterxml = {
             })
         });
     });
-    tape('should load from filepath', function(assert) {
-        new Bridge('bridge://' + path.resolve(path.join(__dirname,'/test-a.xml')), function(err, source) {
-            assert.ifError(err);
-            assert.ok(source);
-            assert.equal(source._blank, false);
-            assert.equal(source._xml, xml.a);
-            assert.equal(source._base, __dirname);
-            source.close(function() {
-                assert.end();
-            })
-        });
-    });
-    tape('should load query params', function(assert) {
-        new Bridge('bridge://' + path.resolve(path.join(__dirname,'/test-a.xml?blank=1')), function(err, source) {
-            assert.ifError(err);
-            assert.equal(source._blank, true);
-            assert.equal(source._xml, xml.a);
-            assert.equal(source._base, __dirname);
-            source.close(function() {
-                assert.end();
-            })
-        });
-    });
     tape('should get info', function(assert) {
         new Bridge({ xml: xml.a, base:path.join(__dirname,'/') }, function(err, source) {
             assert.ifError(err);
