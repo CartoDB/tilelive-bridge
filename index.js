@@ -71,7 +71,7 @@ Bridge.prototype.close = function(callback) {
         callback = false;
     }, 5000);
 
-    poolDrain(this._map, () => {
+    poolDrain(this._map, function () {
         if (!callback) return;
         callback();
         callback = false;
