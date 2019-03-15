@@ -7,7 +7,6 @@ Implements the tilelive API for generating mapnik vector tiles from traditional 
 ### new Bridge(options, callback)
 
 - *xml*: a Mapnik XML string that will be used to generate vector tiles.
-- *base*: Optional, basepath for Mapnik map. Defaults to `__dirname`.
 
 ## Installation
 
