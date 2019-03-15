@@ -12,19 +12,6 @@ var timeoutDecorator = require('./utils/timeout-decorator')
 // Register datasource plugins
 mapnik.register_default_input_plugins();
 
-// this will run on require, which means downstream users that are registering plugins
-// and include this environment variable will hit this section even if it is not desired
-if (process.env.BRIDGE_LOG_MAX_VTILE_BYTES_COMPRESSED) {
-    var stats = { max:0, total:0, count:0 };
-    process.on('exit', function() {
-        stats.avg = stats.total/stats.count;
-        if (stats.count > 0) {
-            fs.writeFileSync('tilelive-bridge-stats.json', JSON.stringify(stats));
-        }
-    });
-}
-
-
 var mapnikPool = mapnik_pool(mapnik);
 
 var ImagePool = function(size) {
@@ -45,7 +32,6 @@ module.exports = Bridge;
 
 function Bridge(uri, callback) {
     this.BRIDGE_MAX_VTILE_BYTES_COMPRESSED = process.env.BRIDGE_MAX_VTILE_BYTES_COMPRESSED ? +process.env.BRIDGE_MAX_VTILE_BYTES_COMPRESSED : 0;
-    this.BRIDGE_LOG_MAX_VTILE_BYTES_COMPRESSED = process.env.BRIDGE_LOG_MAX_VTILE_BYTES_COMPRESSED ? +process.env.BRIDGE_LOG_MAX_VTILE_BYTES_COMPRESSED : 0;
 
     if (!uri.xml) {
         return callback && callback(new Error('No xml'));
@@ -261,16 +247,10 @@ Bridge.getVector = function(source, map, z, x, y, callback) {
                 headers['Content-Encoding'] = 'gzip';
             }
 
-            if (source.BRIDGE_LOG_MAX_VTILE_BYTES_COMPRESSED > 0 && pbfz.length > source.BRIDGE_LOG_MAX_VTILE_BYTES_COMPRESSED) {
-                stats.count++;
-                stats.total = stats.total + (pbfz.length*0.001);
-                if (stats.max < pbfz.length) {
-                    stats.max = pbfz.length;
-                }
-            }
             if (source.BRIDGE_MAX_VTILE_BYTES_COMPRESSED > 0 && pbfz.length > source.BRIDGE_MAX_VTILE_BYTES_COMPRESSED) {
                 return callback(new Error("Tile >= max allowed size"), pbfz, headers);
             }
+
             return callback(err, pbfz, headers);
         });
     });
