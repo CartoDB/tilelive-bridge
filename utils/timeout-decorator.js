@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = function timeoutDecorator(fn, ms) {
+module.exports = function timeoutDecorator(fn, ms, errorMsg) {
   return function () {
     var timeout = false;
     var args = [].slice.call(arguments, 0, arguments.length - 1);
@@ -8,7 +8,7 @@ module.exports = function timeoutDecorator(fn, ms) {
 
     var timeoutId = setTimeout(function () {
       timeout = true;
-      var err = new Error('Render timed out');
+      var err = new Error(errorMsg);
       callback(err);
     }, ms);
 

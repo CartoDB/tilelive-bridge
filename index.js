@@ -27,8 +27,16 @@ function Bridge(uri, callback) {
     }
 
     if (uri.limits.render > 0) {
-        this.getTile = timeoutDecorator(this.getTile.bind(this), uri.limits.render);
+        const errorMsg = 'Render timed out';
+        this.getTile = timeoutDecorator(this.getTile.bind(this), uri.limits.render, errorMsg);
     }
+
+    // For currently unknown reasons map objects can currently be acquired
+    // without being released under certain circumstances. When this occurs
+    // a source cannot be closed fully during a copy or other operation. For
+    // now error out in these scenarios as a close timeout.
+    const errorMsgClose = 'Source resource pool drain timed out after 5s'
+    this.close = timeoutDecorator(this.close.bind(this), 5000, errorMsgClose);
 
     const bufferSize = (uri.query && Number.isFinite(uri.query.bufferSize) && uri.query.bufferSize >= 0) ? uri.query.bufferSize : 256;
     const initOptions = { size: 256, bufferSize };
@@ -43,25 +51,8 @@ Bridge.registerProtocols = function(tilelive) {
     tilelive.protocols['bridge:'] = Bridge;
 };
 
-Bridge.prototype.close = function(callback) {
-    // For currently unknown reasons map objects can currently be acquired
-    // without being released under certain circumstances. When this occurs
-    // a source cannot be closed fully during a copy or other operation. For
-    // now error out in these scenarios as a close timeout.
-    setTimeout(function() {
-        if (!callback) return;
-        console.warn(new Error('Source resource pool drain timed out after 5s'));
-        callback();
-        callback = false;
-    }, 5000);
-
-    this._map.drain(() => {
-        this._map.destroyAllNow(() => {
-            if (!callback) return;
-            callback();
-            callback = false;
-        });
-    });
+Bridge.prototype.close = function (callback) {
+    this._map.drain(() => this._map.destroyAllNow(callback));
 };
 
 Bridge.prototype.getTile = function (z, x, y, callback) {
