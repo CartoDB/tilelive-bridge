@@ -100,71 +100,70 @@ Bridge.prototype.close = function(callback) {
     }.bind(this));
 };
 
-Bridge.prototype.getTile = function(z, x, y, callback) {
+Bridge.prototype.getTile = function (z, x, y, callback) {
     if (!this._map) return callback(new Error('Tilesource not loaded'));
 
-    var source = this;
-    source._map.acquire(function(err, map) {
+    this._map.acquire((err, map) => {
         if (err) {
             return callback(err);
         }
 
-        // set source _maxzoom cache to prevent repeat calls to map.parameters
-        if (source._maxzoom === undefined) {
-            source._maxzoom = map.parameters.maxzoom ? parseInt(map.parameters.maxzoom, 10) : 14;
+        // set _maxzoom cache to prevent repeat calls to map.parameters
+        if (this._maxzoom === undefined) {
+            this._maxzoom = map.parameters.maxzoom ? parseInt(map.parameters.maxzoom, 10) : 14;
         }
 
-        // set source _type cache to prevent repeat calls to map layers
-        if (source._type === undefined) {
+        // set _type cache to prevent repeat calls to map layers
+        if (this._type === undefined) {
             var layers = map.layers();
             if (layers.length && layers.some(function(l) { return l.datasource.type === 'raster' })) {
-                source._type = 'raster';
+                this._type = 'raster';
             } else {
-                source._type = 'vector';
+                this._type = 'vector';
             }
         }
 
-        if (source._threading_mode === undefined) {
+        if (this._threading_mode === undefined) {
             var threading_type = map.parameters.threading_mode;
             if (threading_type === 'auto') {
-                source._threading_mode = mapnik.threadingMode.auto;
+                this._threading_mode = mapnik.threadingMode.auto;
             } else if (threading_type === 'async') {
-                source._threading_mode = mapnik.threadingMode.async;
+                this._threading_mode = mapnik.threadingMode.async;
             } else {
-                source._threading_mode = mapnik.threadingMode.deferred;
+                this._threading_mode = mapnik.threadingMode.deferred;
             }
         }
 
-        if (source._type === 'raster') {
-            source._im.acquire(function(err, im) {
-                Bridge.getRaster(source, map, im, z, x, y, function(err,buffer,headers) {
-                    source._im.release(im);
+        if (this._type === 'raster') {
+            this._im.acquire((err, im) => {
+                this.getRaster(map, im, z, x, y, (err,buffer,headers) => {
+                    this._im.release(im);
                     return callback(err,buffer,headers);
                 });
             });
         } else {
-            Bridge.getVector(source, map, z, x, y, callback);
+            this.getVector(map, z, x, y, callback);
         }
     });
 };
 
-Bridge.getRaster = function(source, map, im, z, x, y, callback) {
+Bridge.prototype.getRaster = function (map, im, z, x, y, callback) {
     map.bufferSize = 0;
     map.resize(512,512);
     map.extent = sm.bbox(+x,+y,+z, false, '900913');
     im.clear();
-    map.render(im, function(err, image) {
-        source._map.release(map);
+    map.render(im, (err, image) => {
+        this._map.release(map);
         if (err) {
             return callback(err);
         }
-        image.isSolid(function(err, solid, pixel) {
+        image.isSolid((err, solid, pixel) => {
             if (err) {
                 return callback(err);
             }
 
             // If source is in blank mode any solid tile is empty.
-            if (solid && source._blank) {
+            if (solid && this._blank) {
                 return callback(null, new Buffer(0));
             }
 
@@ -177,7 +176,7 @@ Bridge.getRaster = function(source, map, im, z, x, y, callback) {
                 pixel_key = r +','+ g + ',' + b + ',' + a;
             }
 
-            image.encode('webp', {}, function(err, buffer) {
+            image.encode('webp', {}, (err, buffer) => {
                 if (err) {
                     return callback(err);
                 }
@@ -188,12 +187,11 @@ Bridge.getRaster = function(source, map, im, z, x, y, callback) {
     });
 };
 
-Bridge.getVector = function(source, map, z, x, y, callback) {
+Bridge.prototype.getVector = function (map, z, x, y, callback) {
     var opts = {};
 
     var headers = {};
     headers['Content-Type'] = 'application/x-protobuf';
-
 
     // The buffer size is in vector tile coordinates, while the buffer size on the
     // map object is in image coordinates. Therefore, lets multiply the buffer_size
@@ -212,7 +210,7 @@ Bridge.getVector = function(source, map, z, x, y, callback) {
     // we don't want another simplification as it will have a visual impact
     opts.simplify_distance = 0;
 
-    opts.threading_mode = source._threading_mode;
+    opts.threading_mode = this._threading_mode;
 
     // enable strictly_simple
     opts.strictly_simple = true;
@@ -226,8 +224,8 @@ Bridge.getVector = function(source, map, z, x, y, callback) {
         bbox: JSON.stringify(map.extent)
     };
 
-    map.render(vtile, opts, function(err, vtile) {
-        source._map.release(map);
+    map.render(vtile, opts, (err, vtile) => {
+        this._map.release(map);
         if (err) {
             return callback(err);
         }
@@ -235,12 +233,12 @@ Bridge.getVector = function(source, map, z, x, y, callback) {
         if (vtile.empty()) {
             return callback(null, new Buffer(0), headers);
         }
-        vtile.getData({ compression: source._gzip ? 'gzip' : 'none' }, function(err, pbfz) {
+        vtile.getData({ compression: this._gzip ? 'gzip' : 'none' }, (err, pbfz) => {
             if (err) {
                 return callback(err);
             }
 
-            if (source._gzip) {
+            if (this._gzip) {
                 headers['Content-Encoding'] = 'gzip';
             }
 
