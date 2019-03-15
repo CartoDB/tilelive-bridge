@@ -116,7 +116,7 @@ Bridge.prototype.getTile = function (z, x, y, callback) {
         // set _type cache to prevent repeat calls to map layers
         if (this._type === undefined) {
             var layers = map.layers();
-            if (layers.length && layers.some(function(l) { return l.datasource.type === 'raster' })) {
+            if (layers.length && layers.some(layer => layer.datasource.type === 'raster')) {
                 this._type = 'raster';
             } else {
                 this._type = 'vector';
