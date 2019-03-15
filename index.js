@@ -2,7 +2,6 @@
 
 var path = require('path');
 var mapnik = require('@carto/mapnik');
-var fs = require('fs');
 var sm = new (require('@mapbox/sphericalmercator'))();
 var mapnik_pool = require('mapnik-pool');
 var Pool = mapnik_pool.Pool;
