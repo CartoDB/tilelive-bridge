@@ -35,7 +35,7 @@ function Bridge(uri, callback) {
     // without being released under certain circumstances. When this occurs
     // a source cannot be closed fully during a copy or other operation. For
     // now error out in these scenarios as a close timeout.
-    const errorMsgClose = 'Source resource pool drain timed out after 5s'
+    const errorMsgClose = 'Source resource pool drain timed out after 5s';
     this.close = timeoutDecorator(this.close.bind(this), 5000, errorMsgClose);
 
     const bufferSize = (uri.query && Number.isFinite(uri.query.bufferSize) && uri.query.bufferSize >= 0) ? uri.query.bufferSize : 256;
