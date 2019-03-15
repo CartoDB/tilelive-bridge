@@ -31,7 +31,7 @@ module.exports = Bridge;
 
 function Bridge(uri, callback) {
     if (!uri.xml) {
-        return callback && callback(new Error('No xml'));
+        return callback(new Error('No xml'));
     }
 
     this._uri = uri;
