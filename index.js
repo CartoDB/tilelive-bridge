@@ -2,7 +2,6 @@
 
 var path = require('path');
 var mapnik = require('@carto/mapnik');
-var sm = new (require('@mapbox/sphericalmercator'))();
 var mapnik_pool = require('mapnik-pool');
 var Pool = mapnik_pool.Pool;
 var os = require('os');
@@ -136,56 +135,7 @@ Bridge.prototype.getTile = function (z, x, y, callback) {
             }
         }
 
-        if (this._type === 'raster') {
-            this._im.acquire((err, im) => {
-                this.getRaster(map, im, z, x, y, (err,buffer,headers) => {
-                    this._im.release(im);
-                    return callback(err,buffer,headers);
-                });
-            });
-        } else {
-            this.getVector(map, z, x, y, callback);
-        }
-    });
-};
-
-Bridge.prototype.getRaster = function (map, im, z, x, y, callback) {
-    map.bufferSize = 0;
-    map.resize(512,512);
-    map.extent = sm.bbox(+x,+y,+z, false, '900913');
-    im.clear();
-    map.render(im, (err, image) => {
-        this._map.release(map);
-        if (err) {
-            return callback(err);
-        }
-        image.isSolid((err, solid, pixel) => {
-            if (err) {
-                return callback(err);
-            }
-
-            // If source is in blank mode any solid tile is empty.
-            if (solid && this._blank) {
-                return callback(null, new Buffer(0));
-            }
-
-            var pixel_key = '';
-            if (solid) {
-                var a = (pixel>>>24) & 0xff;
-                var r = pixel & 0xff;
-                var g = (pixel>>>8) & 0xff;
-                var b = (pixel>>>16) & 0xff;
-                pixel_key = r +','+ g + ',' + b + ',' + a;
-            }
-
-            image.encode('webp', {}, (err, buffer) => {
-                if (err) {
-                    return callback(err);
-                }
-                buffer.solid = pixel_key;
-                return callback(err, buffer, {'Content-Type':'image/webp'});
-            });
-        });
+        this.getVector(map, z, x, y, callback);
     });
 };
 

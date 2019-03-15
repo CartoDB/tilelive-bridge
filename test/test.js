@@ -19,11 +19,6 @@ var xml = {
     itp: fs.readFileSync(path.resolve(path.join(__dirname,'/itp.xml')), 'utf8'),
     carmen_a: fs.readFileSync(path.resolve(path.join(__dirname,'/test-carmenprops-a.xml')), 'utf8')
 };
-var rasterxml = {
-    a: fs.readFileSync(path.resolve(path.join(__dirname,'/raster-a.xml')), 'utf8'),
-    b: fs.readFileSync(path.resolve(path.join(__dirname,'/raster-b.xml')), 'utf8'),
-    c: fs.readFileSync(path.resolve(path.join(__dirname,'/raster-c.xml')), 'utf8')
-};
 
 (function() {
     tape('should set protocol as we would like', function(assert) {
@@ -177,73 +172,6 @@ function compare_vtiles(assert,filepath,vtile1,vtile2) {
             var s = sources[source];
             assert.equal(1,s._map.getPoolSize());
             assert.equal(0,s._im.getPoolSize());
-            s.close(function() {
-                assert.equal(0,s._map.getPoolSize());
-                assert.equal(0,s._im.getPoolSize());
-                assert.end();
-            });
-        });
-    });
-})();
-
-(function() {
-    var sources = {
-        a: { xml:rasterxml.a, base:path.join(__dirname,'/'), blank:true },
-        b: { xml:rasterxml.b, base:path.join(__dirname,'/'), blank:true },
-        c: { xml:rasterxml.c, base:path.join(__dirname,'/'), blank:false }
-    };
-    var tests = {
-        a: ['0.0.0', '1.0.0', '2.1.1', '3.2.2', '4.3.3', '5.4.4'],
-        b: ['0.0.0', '1.0.0'],
-        c: ['0.0.0', '1.0.0']
-    };
-    Object.keys(tests).forEach(function(source) {
-        tape('setup', function(assert) {
-            sources[source] = new Bridge(sources[source], function(err) {
-                assert.ifError(err);
-                assert.end();
-            });
-        });
-    });
-    Object.keys(tests).forEach(function(source) {
-        tests[source].forEach(function(obj) {
-            var key = obj.key ? obj.key : obj;
-            var z = key.split('.')[0] | 0;
-            var x = key.split('.')[1] | 0;
-            var y = key.split('.')[2] | 0;
-            tape('should render ' + source + ' (' + key + ')', function(assert) {
-                sources[source].getTile(z,x,y, function(err, buffer, headers) {
-                    // Test that empty tiles are so.
-                    if (obj.empty) {
-                        assert.equal(buffer.length, 0);
-                        return assert.end();
-                    }
-
-                    assert.ifError(err);
-                    assert.equal(headers['Content-Type'], 'image/webp');
-
-                    // Test solid key generation.
-                    if (obj.solid) assert.equal(buffer.solid, obj.solid);
-
-                    var filepath = path.join(__dirname,'/expected-raster/' + source + '.' + key + '.webp');
-                    if (UPDATE || !fs.existsSync(filepath)) {
-                        console.log('Generating image at ' + filepath);
-                        fs.writeFileSync(filepath, buffer);
-                    }
-
-                    var resultImage = new mapnik.Image.fromBytesSync(buffer);
-                    var expectImage = new mapnik.Image.fromBytesSync(fs.readFileSync(filepath));
-                    assert.equal(expectImage.compare(resultImage),0);
-                    assert.end();
-                });
-            });
-        });
-    });
-    Object.keys(tests).forEach(function(source) {
-        tape('teardown', function(assert) {
-            var s = sources[source];
-            assert.equal(1,s._map.getPoolSize());
-            assert.equal(1,s._im.getPoolSize());
             s.close(function() {
                 assert.equal(0,s._map.getPoolSize());
                 assert.equal(0,s._im.getPoolSize());
