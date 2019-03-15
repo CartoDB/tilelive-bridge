@@ -157,6 +157,7 @@ Bridge.prototype.getVector = function (map, z, x, y, callback) {
     });
 };
 
+// We (CARTO) are using always the default value: deferred = 2;
 function getThreadingMode (map) {
     const threadingType = map.parameters.threading_mode;
 
