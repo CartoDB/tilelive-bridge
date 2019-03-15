@@ -81,66 +81,64 @@ Bridge.prototype.getTile = function (z, x, y, callback) {
             return callback(err);
         }
 
-        this.getVector(map, z, x, y, callback);
-    });
-};
+        var opts = {};
 
-Bridge.prototype.getVector = function (map, z, x, y, callback) {
-    var opts = {};
+        var headers = {};
+        headers['Content-Type'] = 'application/x-protobuf';
 
-    var headers = {};
-    headers['Content-Type'] = 'application/x-protobuf';
-
-    // The buffer size is in vector tile coordinates, while the buffer size on the
-    // map object is in image coordinates. Therefore, lets multiply the buffer_size
-    // by the old "path_multiplier" value of 16 to get a proper buffer size.
-    try {
-        // Try-catch is necessary here because the constructor will throw if x and y
-        // are out of bounds at zoom-level z
-        var vtile = new mapnik.VectorTile(+z,+x,+y, {buffer_size:16*map.bufferSize});
-    } catch(err) {
-        return callback(err, null, headers);
-    }
-
-    map.extent = vtile.extent();
-
-    // Since we (CARTO) are already simplifying the geometries in the Postgresql query
-    // we don't want another simplification as it will have a visual impact
-    opts.simplify_distance = 0;
-
-    opts.threading_mode = getThreadingMode(map);
-
-    // enable strictly_simple
-    opts.strictly_simple = true;
-
-    // make zoom, x, y and bbox variables available to mapnik postgis datasource
-    opts.variables = {
-        zoom_level: z, // for backwards compatibility
-        zoom: z,
-        x: x,
-        y: y,
-        bbox: JSON.stringify(map.extent)
-    };
-
-    map.render(vtile, opts, (err, vtile) => {
-        this._map.release(map);
-        if (err) {
-            return callback(err);
+        // The buffer size is in vector tile coordinates, while the buffer size on the
+        // map object is in image coordinates. Therefore, lets multiply the buffer_size
+        // by the old "path_multiplier" value of 16 to get a proper buffer size.
+        try {
+            // Try-catch is necessary here because the constructor will throw if x and y
+            // are out of bounds at zoom-level z
+            var vtile = new mapnik.VectorTile(+z,+x,+y, {buffer_size:16*map.bufferSize});
+        } catch(err) {
+            return callback(err, null, headers);
         }
-        headers['x-tilelive-contains-data'] = vtile.painted();
-        if (vtile.empty()) {
-            return callback(null, new Buffer(0), headers);
-        }
-        vtile.getData({ compression: this._gzip ? 'gzip' : 'none' }, (err, pbfz) => {
+
+        map.extent = vtile.extent();
+
+        // Since we (CARTO) are already simplifying the geometries in the Postgresql query
+        // we don't want another simplification as it will have a visual impact
+        opts.simplify_distance = 0;
+
+        opts.threading_mode = getThreadingMode(map);
+
+        // enable strictly_simple
+        opts.strictly_simple = true;
+
+        // make zoom, x, y and bbox variables available to mapnik postgis datasource
+        opts.variables = {
+            zoom_level: z, // for backwards compatibility
+            zoom: z,
+            x: x,
+            y: y,
+            bbox: JSON.stringify(map.extent)
+        };
+
+        map.render(vtile, opts, (err, vtile) => {
+            this._map.release(map);
+
             if (err) {
                 return callback(err);
             }
 
-            if (this._gzip) {
-                headers['Content-Encoding'] = 'gzip';
+            headers['x-tilelive-contains-data'] = vtile.painted();
+            if (vtile.empty()) {
+                return callback(null, new Buffer(0), headers);
             }
+            vtile.getData({ compression: this._gzip ? 'gzip' : 'none' }, (err, pbfz) => {
+                if (err) {
+                    return callback(err);
+                }
 
-            return callback(err, pbfz, headers);
+                if (this._gzip) {
+                    headers['Content-Encoding'] = 'gzip';
+                }
+
+                return callback(err, pbfz, headers);
+            });
         });
     });
 };
