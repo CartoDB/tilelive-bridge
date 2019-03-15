@@ -275,24 +275,6 @@ function compare_vtiles(assert,filepath,vtile1,vtile2) {
 
 (function() {
     // limits: timeout configurable
-
-    tape('should receive timeout parameter through URI', function (assert) {
-        var uri = {
-            xml: '<Map></Map>',
-            query: {
-                limits: {
-                    render: 1
-                }
-            }
-        }
-        new Bridge(uri, function(err, source) {
-            assert.ifError(err);
-            assert.ok(source);
-            assert.equal(source._uri.limits.render, 1);
-            assert.end();
-        });
-    });
-
     var sources = {
         a: {
             xml: xml.c,

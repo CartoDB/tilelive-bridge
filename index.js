@@ -17,29 +17,24 @@ function Bridge(uri, callback) {
         return callback(new Error('No xml'));
     }
 
-    this._uri = uri;
-    this._base = path.resolve(uri.base || __dirname);
-
-    // 'blank' option forces all solid tiles to be interpreted as blank.
-    this._blank = typeof uri.blank === 'boolean' ? uri.blank : false;
-
-    // whether to compress the vector tiles or not
+    // whether to compress the vector tiles or not, true by default
     this._gzip = typeof uri.gzip === 'boolean' ? uri.gzip : true;
 
-    this._bufferSize = (uri.query && Number.isFinite(uri.query.bufferSize) && uri.query.bufferSize >= 0) ? uri.query.bufferSize : 256;
+    uri.limits = (uri.query && uri.query.limits) ? uri.query.limits : {};
 
-    this._uri.limits = (uri.query && uri.query.limits) ? uri.query.limits : {};
-    if (typeof this._uri.limits.render === 'undefined') this._uri.limits.render = 0;
-
-    if (this._uri.limits.render > 0) {
-        this.getTile = timeoutDecorator(this.getTile.bind(this), this._uri.limits.render);
+    if (typeof uri.limits.render === 'undefined') {
+        uri.limits.render = 0;
     }
 
-    this._xml = uri.xml;
+    if (uri.limits.render > 0) {
+        this.getTile = timeoutDecorator(this.getTile.bind(this), uri.limits.render);
+    }
 
-    var mopts = { strict: false, base: this._base + '/' };
+    var mopts = { strict: false, base: `${path.resolve(uri.base || __dirname)}/` };
 
-    this._map = mapnikPool.fromString(this._xml, { size: 256, bufferSize: this._bufferSize }, mopts);
+    const bufferSize = (uri.query && Number.isFinite(uri.query.bufferSize) && uri.query.bufferSize >= 0) ? uri.query.bufferSize : 256;
+
+    this._map = mapnikPool.fromString(uri.xml, { size: 256, bufferSize }, mopts);
 
     return callback(null, this);
 }
@@ -48,7 +43,7 @@ Bridge.registerProtocols = function(tilelive) {
     tilelive.protocols['bridge:'] = Bridge;
 };
 
-function poolDrain(pool,callback) {
+function poolDrain(pool, callback) {
     if (!pool) {
         return callback();
     }
