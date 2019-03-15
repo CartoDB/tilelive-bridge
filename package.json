@@ -26,7 +26,6 @@
   },
   "scripts": {
     "lint": "eslint index.js",
-    "pretest": "npm run lint",
     "test": "tape test/*.js"
   }
 }
