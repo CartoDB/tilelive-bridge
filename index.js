@@ -35,8 +35,6 @@ function Bridge(uri, callback) {
         this.getTile = timeoutDecorator(this.getTile.bind(this), this._uri.limits.render);
     }
 
-    // Unset maxzoom. Will be re-set on first getTile.
-    this._maxzoom = undefined;
     this._xml = uri.xml;
 
     var mopts = { strict: false, base: this._base + '/' };
@@ -86,11 +84,6 @@ Bridge.prototype.getTile = function (z, x, y, callback) {
     this._map.acquire((err, map) => {
         if (err) {
             return callback(err);
-        }
-
-        // set _maxzoom cache to prevent repeat calls to map.parameters
-        if (this._maxzoom === undefined) {
-            this._maxzoom = map.parameters.maxzoom ? parseInt(map.parameters.maxzoom, 10) : 14;
         }
 
         this.getVector(map, z, x, y, callback);
