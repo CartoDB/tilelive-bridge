@@ -171,10 +171,8 @@ function compare_vtiles(assert,filepath,vtile1,vtile2) {
         tape('teardown', function(assert) {
             var s = sources[source];
             assert.equal(1,s._map.getPoolSize());
-            assert.equal(0,s._im.getPoolSize());
             s.close(function() {
                 assert.equal(0,s._map.getPoolSize());
-                assert.equal(0,s._im.getPoolSize());
                 assert.end();
             });
         });
@@ -267,10 +265,8 @@ function compare_vtiles(assert,filepath,vtile1,vtile2) {
         tape('teardown', function(assert) {
             var s = sources[source];
             assert.equal(1,s._map.getPoolSize());
-            assert.equal(0,s._im.getPoolSize());
             s.close(function() {
                 assert.equal(0,s._map.getPoolSize());
-                assert.equal(0,s._im.getPoolSize());
                 assert.end();
             });
         });
@@ -341,10 +337,8 @@ function compare_vtiles(assert,filepath,vtile1,vtile2) {
         tape('teardown', function(assert) {
             var s = sources[source];
             assert.equal(1,s._map.getPoolSize());
-            assert.equal(0,s._im.getPoolSize());
             s.close(function() {
                 assert.equal(0,s._map.getPoolSize());
-                assert.equal(0,s._im.getPoolSize());
                 assert.end();
             });
         });

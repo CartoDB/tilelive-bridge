@@ -3,28 +3,12 @@
 var path = require('path');
 var mapnik = require('@carto/mapnik');
 var mapnik_pool = require('mapnik-pool');
-var Pool = mapnik_pool.Pool;
-var os = require('os');
 var timeoutDecorator = require('./utils/timeout-decorator')
 
 // Register datasource plugins
 mapnik.register_default_input_plugins();
 
 var mapnikPool = mapnik_pool(mapnik);
-
-var ImagePool = function(size) {
-    return Pool({
-        create: function create(callback) {
-            return callback(null,new mapnik.Image(size,size));
-        },
-        // eslint-disable-next-line no-unused-vars
-        destroy: function destroy(im) {
-            // see: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Errors/Delete_in_strict_mode
-            im = null;
-        },
-        max: os.cpus().length * 2
-    });
-}
 
 module.exports = Bridge;
 
@@ -58,7 +42,6 @@ function Bridge(uri, callback) {
     var mopts = { strict: false, base: this._base + '/' };
 
     this._map = mapnikPool.fromString(this._xml, { size: 256, bufferSize: this._bufferSize }, mopts);
-    this._im = ImagePool(512);
 
     return callback(null, this);
 }
@@ -89,11 +72,9 @@ Bridge.prototype.close = function(callback) {
     }, 5000);
 
     poolDrain(this._map, () => {
-        poolDrain(this._im, () => {
-            if (!callback) return;
-            callback();
-            callback = false;
-        });
+        if (!callback) return;
+        callback();
+        callback = false;
     });
 };
 
