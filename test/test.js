@@ -50,7 +50,7 @@ var xml = {
             // manually break the map pool to deviously trigger later error
             // this should never happen in reality but allows us to
             // cover this error case nevertheless
-            source._map = mapnikPool.fromString('bogus xml');
+            source._mapPool = mapnikPool.fromString('bogus xml');
             source.getTile(0,0,0, function(err, buffer, headers) {
                 assert.equal(err.message, 'expected < at line 1');
                 source.close(function() {
@@ -170,9 +170,9 @@ function compare_vtiles(assert,filepath,vtile1,vtile2) {
     Object.keys(tests).forEach(function(source) {
         tape('teardown', function(assert) {
             var s = sources[source];
-            assert.equal(1,s._map.getPoolSize());
+            assert.equal(1,s._mapPool.getPoolSize());
             s.close(function() {
-                assert.equal(0,s._map.getPoolSize());
+                assert.equal(0,s._mapPool.getPoolSize());
                 assert.end();
             });
         });
@@ -237,9 +237,9 @@ function compare_vtiles(assert,filepath,vtile1,vtile2) {
     Object.keys(tests).forEach(function(source) {
         tape('teardown', function(assert) {
             var s = sources[source];
-            assert.equal(1,s._map.getPoolSize());
+            assert.equal(1,s._mapPool.getPoolSize());
             s.close(function() {
-                assert.equal(0,s._map.getPoolSize());
+                assert.equal(0,s._mapPool.getPoolSize());
                 assert.end();
             });
         });
@@ -291,9 +291,9 @@ function compare_vtiles(assert,filepath,vtile1,vtile2) {
     Object.keys(tests).forEach(function(source) {
         tape('teardown', function(assert) {
             var s = sources[source];
-            assert.equal(1,s._map.getPoolSize());
+            assert.equal(1,s._mapPool.getPoolSize());
             s.close(function() {
-                assert.equal(0,s._map.getPoolSize());
+                assert.equal(0,s._mapPool.getPoolSize());
                 assert.end();
             });
         });

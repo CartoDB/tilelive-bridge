@@ -42,7 +42,7 @@ function Bridge(uri, callback) {
     const initOptions = { size: 256, bufferSize };
     const mapOptions = { strict: false, base: `${path.resolve(uri.base || __dirname)}/` };
 
-    this._map = mapnikPool.fromString(uri.xml, initOptions, mapOptions);
+    this._mapPool = mapnikPool.fromString(uri.xml, initOptions, mapOptions);
 
     return callback(null, this);
 }
@@ -52,11 +52,11 @@ Bridge.registerProtocols = function(tilelive) {
 };
 
 Bridge.prototype.close = function (callback) {
-    this._map.drain(() => this._map.destroyAllNow(callback));
+    this._mapPool.drain(() => this._mapPool.destroyAllNow(callback));
 };
 
 Bridge.prototype.getTile = function (z, x, y, callback) {
-    this._map.acquire((err, map) => {
+    this._mapPool.acquire((err, map) => {
         if (err) {
             return callback(err);
         }
@@ -98,7 +98,7 @@ Bridge.prototype.getTile = function (z, x, y, callback) {
         };
 
         map.render(vtile, opts, (err, vtile) => {
-            this._map.release(map);
+            this._mapPool.release(map);
 
             if (err) {
                 return callback(err);
