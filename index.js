@@ -53,8 +53,6 @@ function Bridge(uri, callback) {
 
     // Unset maxzoom. Will be re-set on first getTile.
     this._maxzoom = undefined;
-    // Unset type. Will be re-set on first getTile.
-    this._type = undefined;
     this._xml = uri.xml;
 
     var mopts = { strict: false, base: this._base + '/' };
@@ -112,16 +110,6 @@ Bridge.prototype.getTile = function (z, x, y, callback) {
         // set _maxzoom cache to prevent repeat calls to map.parameters
         if (this._maxzoom === undefined) {
             this._maxzoom = map.parameters.maxzoom ? parseInt(map.parameters.maxzoom, 10) : 14;
-        }
-
-        // set _type cache to prevent repeat calls to map layers
-        if (this._type === undefined) {
-            var layers = map.layers();
-            if (layers.length && layers.some(layer => layer.datasource.type === 'raster')) {
-                this._type = 'raster';
-            } else {
-                this._type = 'vector';
-            }
         }
 
         if (this._threading_mode === undefined) {
