@@ -30,11 +30,11 @@ function Bridge(uri, callback) {
         this.getTile = timeoutDecorator(this.getTile.bind(this), uri.limits.render);
     }
 
-    var mopts = { strict: false, base: `${path.resolve(uri.base || __dirname)}/` };
-
     const bufferSize = (uri.query && Number.isFinite(uri.query.bufferSize) && uri.query.bufferSize >= 0) ? uri.query.bufferSize : 256;
+    const initOptions = { size: 256, bufferSize };
+    const mapOptions = { strict: false, base: `${path.resolve(uri.base || __dirname)}/` };
 
-    this._map = mapnikPool.fromString(uri.xml, { size: 256, bufferSize }, mopts);
+    this._map = mapnikPool.fromString(uri.xml, initOptions, mapOptions);
 
     return callback(null, this);
 }
