@@ -182,33 +182,6 @@ function compare_vtiles(assert,filepath,vtile1,vtile2) {
 (function() {
     // Buffer-size configurable
 
-    tape('should receive buffer-size parameter through URI', function(assert) {
-        new Bridge({xml: '<Map></Map>', query:{bufferSize: 0}}, function(err, source) {
-            assert.ifError(err);
-            assert.ok(source);
-            assert.equal(source._bufferSize, 0);
-            assert.end();
-        });
-    });
-
-    tape('should set to default value if buffer-size passed through URI is not a positive numberj', function(assert) {
-        new Bridge({xml: '<Map></Map>', query:{bufferSize: -1}}, function(err, source) {
-            assert.ifError(err);
-            assert.ok(source);
-            assert.equal(source._bufferSize, 256);
-            assert.end();
-        });
-    });
-
-    tape('should set to default value if buffer-size passed through URI is not a number', function(assert) {
-        new Bridge({xml: '<Map></Map>', query:{bufferSize: 'aa'}}, function(err, source) {
-            assert.ifError(err);
-            assert.ok(source);
-            assert.equal(source._bufferSize, 256);
-            assert.end();
-        });
-    });
-
     var sources = {
         a: { xml: xml.c, base: path.join(__dirname,'/'), query: {bufferSize: 0}},
         b: { xml: xml.c, base: path.join(__dirname,'/'), query: {bufferSize: 64}},
