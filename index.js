@@ -43,15 +43,6 @@ Bridge.registerProtocols = function(tilelive) {
     tilelive.protocols['bridge:'] = Bridge;
 };
 
-function poolDrain(pool, callback) {
-    if (!pool) {
-        return callback();
-    }
-    pool.drain(function() {
-        pool.destroyAllNow(callback);
-    });
-}
-
 Bridge.prototype.close = function(callback) {
     // For currently unknown reasons map objects can currently be acquired
     // without being released under certain circumstances. When this occurs
@@ -64,10 +55,12 @@ Bridge.prototype.close = function(callback) {
         callback = false;
     }, 5000);
 
-    poolDrain(this._map, function () {
-        if (!callback) return;
-        callback();
-        callback = false;
+    this._map.drain(() => {
+        this._map.destroyAllNow(() => {
+            if (!callback) return;
+            callback();
+            callback = false;
+        });
     });
 };
 
