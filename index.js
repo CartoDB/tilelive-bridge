@@ -93,17 +93,6 @@ Bridge.prototype.getTile = function (z, x, y, callback) {
             this._maxzoom = map.parameters.maxzoom ? parseInt(map.parameters.maxzoom, 10) : 14;
         }
 
-        if (this._threading_mode === undefined) {
-            var threading_type = map.parameters.threading_mode;
-            if (threading_type === 'auto') {
-                this._threading_mode = mapnik.threadingMode.auto;
-            } else if (threading_type === 'async') {
-                this._threading_mode = mapnik.threadingMode.async;
-            } else {
-                this._threading_mode = mapnik.threadingMode.deferred;
-            }
-        }
-
         this.getVector(map, z, x, y, callback);
     });
 };
@@ -131,7 +120,7 @@ Bridge.prototype.getVector = function (map, z, x, y, callback) {
     // we don't want another simplification as it will have a visual impact
     opts.simplify_distance = 0;
 
-    opts.threading_mode = this._threading_mode;
+    opts.threading_mode = getThreadingMode(map);
 
     // enable strictly_simple
     opts.strictly_simple = true;
@@ -167,3 +156,17 @@ Bridge.prototype.getVector = function (map, z, x, y, callback) {
         });
     });
 };
+
+function getThreadingMode (map) {
+    const threadingType = map.parameters.threading_mode;
+
+    if (threadingType === 'auto') {
+        return mapnik.threadingMode.auto; // 3
+    }
+
+    if (threadingType === 'async') {
+        return mapnik.threadingMode.async; // 1
+    }
+
+    return mapnik.threadingMode.deferred; // 2
+}
