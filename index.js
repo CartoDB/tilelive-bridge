@@ -1,14 +1,14 @@
 'use strict';
 
-var path = require('path');
-var mapnik = require('@carto/mapnik');
-var mapnik_pool = require('mapnik-pool');
-var timeoutDecorator = require('./utils/timeout-decorator')
+const path = require('path');
+const mapnik = require('@carto/mapnik');
+const mapnik_pool = require('mapnik-pool');
+const timeoutDecorator = require('./utils/timeout-decorator')
 
 // Register datasource plugins
 mapnik.register_default_input_plugins();
 
-var mapnikPool = mapnik_pool(mapnik);
+const mapnikPool = mapnik_pool(mapnik);
 
 module.exports = Bridge;
 
@@ -61,18 +61,19 @@ Bridge.prototype.getTile = function (z, x, y, callback) {
             return callback(err);
         }
 
-        var opts = {};
+        const options = {};
 
-        var headers = {};
+        const headers = {};
         headers['Content-Type'] = 'application/x-protobuf';
 
+        let vtile;
         // The buffer size is in vector tile coordinates, while the buffer size on the
         // map object is in image coordinates. Therefore, lets multiply the buffer_size
         // by the old "path_multiplier" value of 16 to get a proper buffer size.
         try {
             // Try-catch is necessary here because the constructor will throw if x and y
             // are out of bounds at zoom-level z
-            var vtile = new mapnik.VectorTile(+z,+x,+y, {buffer_size:16*map.bufferSize});
+            vtile = new mapnik.VectorTile(+z,+x,+y, { buffer_size: 16 * map.bufferSize });
         } catch(err) {
             return callback(err, null, headers);
         }
@@ -81,15 +82,15 @@ Bridge.prototype.getTile = function (z, x, y, callback) {
 
         // Since we (CARTO) are already simplifying the geometries in the Postgresql query
         // we don't want another simplification as it will have a visual impact
-        opts.simplify_distance = 0;
+        options.simplify_distance = 0;
 
-        opts.threading_mode = getThreadingMode(map);
+        options.threading_mode = getThreadingMode(map);
 
         // enable strictly_simple
-        opts.strictly_simple = true;
+        options.strictly_simple = true;
 
         // make zoom, x, y and bbox variables available to mapnik postgis datasource
-        opts.variables = {
+        options.variables = {
             zoom_level: z, // for backwards compatibility
             zoom: z,
             x: x,
@@ -97,7 +98,7 @@ Bridge.prototype.getTile = function (z, x, y, callback) {
             bbox: JSON.stringify(map.extent)
         };
 
-        map.render(vtile, opts, (err, vtile) => {
+        map.render(vtile, options, (err, vtile) => {
             this._mapPool.release(map);
 
             if (err) {
