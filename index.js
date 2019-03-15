@@ -63,9 +63,6 @@ Bridge.prototype.getTile = function (z, x, y, callback) {
 
         const options = {};
 
-        const headers = {};
-        headers['Content-Type'] = 'application/x-protobuf';
-
         let vtile;
         // The buffer size is in vector tile coordinates, while the buffer size on the
         // map object is in image coordinates. Therefore, lets multiply the buffer_size
@@ -75,7 +72,7 @@ Bridge.prototype.getTile = function (z, x, y, callback) {
             // are out of bounds at zoom-level z
             vtile = new mapnik.VectorTile(+z,+x,+y, { buffer_size: 16 * map.bufferSize });
         } catch(err) {
-            return callback(err, null, headers);
+            return callback(err);
         }
 
         map.extent = vtile.extent();
@@ -105,10 +102,15 @@ Bridge.prototype.getTile = function (z, x, y, callback) {
                 return callback(err);
             }
 
+            const headers = {};
+
+            headers['Content-Type'] = 'application/x-protobuf';
             headers['x-tilelive-contains-data'] = vtile.painted();
+
             if (vtile.empty()) {
                 return callback(null, new Buffer(0), headers);
             }
+
             vtile.getData({ compression: this._gzip ? 'gzip' : 'none' }, (err, pbfz) => {
                 if (err) {
                     return callback(err);
