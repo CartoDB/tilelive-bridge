@@ -91,13 +91,13 @@ Bridge.prototype.close = function(callback) {
         callback = false;
     }, 5000);
 
-    poolDrain(this._map,function() {
-        poolDrain(this._im,function() {
+    poolDrain(this._map, () => {
+        poolDrain(this._im, () => {
             if (!callback) return;
             callback();
             callback = false;
         });
-    }.bind(this));
+    });
 };
 
 Bridge.prototype.getTile = function (z, x, y, callback) {
