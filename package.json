@@ -25,6 +25,8 @@
     "tape": "^4.9.1"
   },
   "scripts": {
-    "test": "eslint index.js && tape test/*.js"
+    "lint": "eslint index.js",
+    "pretest": "npm run lint",
+    "test": "tape test/*.js"
   }
 }
