@@ -29,17 +29,16 @@ var mapnikPool = mapnik_pool(mapnik);
 
 var ImagePool = function(size) {
     return Pool({
-        create: create,
-        destroy: destroy,
+        create: function create(callback) {
+            return callback(null,new mapnik.Image(size,size));
+        },
+        // eslint-disable-next-line no-unused-vars
+        destroy: function destroy(im) {
+            // see: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Errors/Delete_in_strict_mode
+            im = null;
+        },
         max: os.cpus().length * 2
     });
-    function create(callback) {
-        return callback(null,new mapnik.Image(size,size));
-    }
-    function destroy(im) {
-        // see: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Errors/Delete_in_strict_mode
-        im = null;
-    }
 }
 
 module.exports = Bridge;
