@@ -72,10 +72,6 @@ Bridge.prototype.close = function(callback) {
 };
 
 Bridge.prototype.getTile = function (z, x, y, callback) {
-    if (!this._map) {
-        return callback(new Error('Tilesource not loaded'));
-    }
-
     this._map.acquire((err, map) => {
         if (err) {
             return callback(err);
