@@ -8,8 +8,8 @@ var zlib = require('zlib');
 var tape = require('tape');
 var UPDATE = process.env.UPDATE;
 var deepEqual = require('deep-equal');
-var mapnik_pool = require('mapnik-pool');
-var mapnikPool = mapnik_pool(mapnik);
+const createMapPool = require('../map-pool');
+const normalizeURI = require('../uri');
 
 // Load fixture data.
 var xml = {
@@ -50,7 +50,8 @@ var xml = {
             // manually break the map pool to deviously trigger later error
             // this should never happen in reality but allows us to
             // cover this error case nevertheless
-            source._mapPool = mapnikPool.fromString('bogus xml');
+            const uri = normalizeURI({});
+            source._mapPool = createMapPool(uri, 'bogus xml');
             source.getTile(0,0,0, function(err, buffer, headers) {
                 assert.equal(err.message, 'expected < at line 1');
                 source.close(function() {
@@ -170,9 +171,9 @@ function compare_vtiles(assert,filepath,vtile1,vtile2) {
     Object.keys(tests).forEach(function(source) {
         tape('teardown', function(assert) {
             var s = sources[source];
-            assert.equal(1,s._mapPool.getPoolSize());
+            assert.equal(1,s._mapPool.size);
             s.close(function() {
-                assert.equal(0,s._mapPool.getPoolSize());
+                assert.equal(0,s._mapPool.size);
                 assert.end();
             });
         });
@@ -237,9 +238,9 @@ function compare_vtiles(assert,filepath,vtile1,vtile2) {
     Object.keys(tests).forEach(function(source) {
         tape('teardown', function(assert) {
             var s = sources[source];
-            assert.equal(1,s._mapPool.getPoolSize());
+            assert.equal(1,s._mapPool.size);
             s.close(function() {
-                assert.equal(0,s._mapPool.getPoolSize());
+                assert.equal(0,s._mapPool.size);
                 assert.end();
             });
         });
@@ -291,9 +292,9 @@ function compare_vtiles(assert,filepath,vtile1,vtile2) {
     Object.keys(tests).forEach(function(source) {
         tape('teardown', function(assert) {
             var s = sources[source];
-            assert.equal(1,s._mapPool.getPoolSize());
+            assert.equal(1,s._mapPool.size);
             s.close(function() {
-                assert.equal(0,s._mapPool.getPoolSize());
+                assert.equal(0,s._mapPool.size);
                 assert.end();
             });
         });

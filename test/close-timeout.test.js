@@ -11,18 +11,13 @@ tape('should timeout on close', function(assert) {
         assert.ifError(err);
         assert.ok(source);
 
-        var map;
-        source._mapPool.acquire(function(err, m) {
+        source._mapPool.acquire(function(err, map) {
             assert.ifError(err);
-            assert.ok(m, 'acquires map');
-            map = m;
+            assert.ok(map, 'acquires map');
         });
 
         source.close(function (err) {
             assert.equal(err.message, 'Source resource pool drain timed out after 5s');
-            // release map so node process ends
-            source._mapPool.release(map);
-
             assert.end();
         });
     });

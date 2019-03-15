@@ -1,14 +1,13 @@
 'use strict';
 
-const path = require('path');
 const mapnik = require('@carto/mapnik');
-const mapnik_pool = require('mapnik-pool');
-const timeoutDecorator = require('./utils/timeout-decorator')
+const timeoutDecorator = require('./utils/timeout-decorator');
+const createMapPool = require('./map-pool');
+const normalizeURI = require('./uri');
 
 // Register datasource plugins
 mapnik.register_default_input_plugins();
 
-const mapnikPool = mapnik_pool(mapnik);
 
 module.exports = Bridge;
 
@@ -17,18 +16,14 @@ function Bridge(uri, callback) {
         return callback(new Error('No xml'));
     }
 
+    uri = normalizeURI(uri);
+
     // whether to compress the vector tiles or not, true by default
     this._gzip = typeof uri.gzip === 'boolean' ? uri.gzip : true;
 
-    uri.limits = (uri.query && uri.query.limits) ? uri.query.limits : {};
-
-    if (typeof uri.limits.render === 'undefined') {
-        uri.limits.render = 0;
-    }
-
-    if (uri.limits.render > 0) {
+    if (uri.query.limits.render > 0) {
         const errorMsg = 'Render timed out';
-        this.getTile = timeoutDecorator(this.getTile.bind(this), uri.limits.render, errorMsg);
+        this.getTile = timeoutDecorator(this.getTile.bind(this), uri.query.limits.render, errorMsg);
     }
 
     // For currently unknown reasons map objects can currently be acquired
@@ -38,11 +33,7 @@ function Bridge(uri, callback) {
     const errorMsgClose = 'Source resource pool drain timed out after 5s';
     this.close = timeoutDecorator(this.close.bind(this), 5000, errorMsgClose);
 
-    const bufferSize = (uri.query && Number.isFinite(uri.query.bufferSize) && uri.query.bufferSize >= 0) ? uri.query.bufferSize : 256;
-    const initOptions = { size: 256, bufferSize };
-    const mapOptions = { strict: false, base: `${path.resolve(uri.base || __dirname)}/` };
-
-    this._mapPool = mapnikPool.fromString(uri.xml, initOptions, mapOptions);
+    this._mapPool = createMapPool(uri, uri.xml);
 
     return callback(null, this);
 }
@@ -52,78 +43,86 @@ Bridge.registerProtocols = function(tilelive) {
 };
 
 Bridge.prototype.close = function (callback) {
-    this._mapPool.drain(() => this._mapPool.destroyAllNow(callback));
+    this._mapPool.drain()
+        .then(() => this._mapPool.clear())
+        .then(() => callback())
+        .catch((err) =>  callback(err));
 };
 
 Bridge.prototype.getTile = function (z, x, y, callback) {
-    this._mapPool.acquire((err, map) => {
-        if (err) {
-            return callback(err);
-        }
+    this._mapPool.acquire()
+        .then((map) => {
+            if (!(map instanceof mapnik.Map)) {
+                const err = map;
+                this._mapPool.release(map);
 
-        const options = {};
+                throw err;
+            }
 
-        let vtile;
-        // The buffer size is in vector tile coordinates, while the buffer size on the
-        // map object is in image coordinates. Therefore, lets multiply the buffer_size
-        // by the old "path_multiplier" value of 16 to get a proper buffer size.
-        try {
-            // Try-catch is necessary here because the constructor will throw if x and y
-            // are out of bounds at zoom-level z
-            vtile = new mapnik.VectorTile(+z,+x,+y, { buffer_size: 16 * map.bufferSize });
-        } catch(err) {
-            return callback(err);
-        }
+            const options = {};
 
-        map.extent = vtile.extent();
-
-        // Since we (CARTO) are already simplifying the geometries in the Postgresql query
-        // we don't want another simplification as it will have a visual impact
-        options.simplify_distance = 0;
-
-        options.threading_mode = getThreadingMode(map);
-
-        // enable strictly_simple
-        options.strictly_simple = true;
-
-        // make zoom, x, y and bbox variables available to mapnik postgis datasource
-        options.variables = {
-            zoom_level: z, // for backwards compatibility
-            zoom: z,
-            x: x,
-            y: y,
-            bbox: JSON.stringify(map.extent)
-        };
-
-        map.render(vtile, options, (err, vtile) => {
-            this._mapPool.release(map);
-
-            if (err) {
+            let vtile;
+            // The buffer size is in vector tile coordinates, while the buffer size on the
+            // map object is in image coordinates. Therefore, lets multiply the buffer_size
+            // by the old "path_multiplier" value of 16 to get a proper buffer size.
+            try {
+                // Try-catch is necessary here because the constructor will throw if x and y
+                // are out of bounds at zoom-level z
+                vtile = new mapnik.VectorTile(+z,+x,+y, { buffer_size: 16 * map.bufferSize });
+            } catch(err) {
                 return callback(err);
             }
 
-            const headers = {};
+            map.extent = vtile.extent();
 
-            headers['Content-Type'] = 'application/x-protobuf';
-            headers['x-tilelive-contains-data'] = vtile.painted();
+            // Since we (CARTO) are already simplifying the geometries in the Postgresql query
+            // we don't want another simplification as it will have a visual impact
+            options.simplify_distance = 0;
 
-            if (vtile.empty()) {
-                return callback(null, new Buffer(0), headers);
-            }
+            options.threading_mode = getThreadingMode(map);
 
-            vtile.getData({ compression: this._gzip ? 'gzip' : 'none' }, (err, pbfz) => {
+            // enable strictly_simple
+            options.strictly_simple = true;
+
+            // make zoom, x, y and bbox variables available to mapnik postgis datasource
+            options.variables = {
+                zoom_level: z, // for backwards compatibility
+                zoom: z,
+                x: x,
+                y: y,
+                bbox: JSON.stringify(map.extent)
+            };
+
+            map.render(vtile, options, (err, vtile) => {
+                this._mapPool.release(map);
+
                 if (err) {
                     return callback(err);
                 }
 
-                if (this._gzip) {
-                    headers['Content-Encoding'] = 'gzip';
+                const headers = {};
+
+                headers['Content-Type'] = 'application/x-protobuf';
+                headers['x-tilelive-contains-data'] = vtile.painted();
+
+                if (vtile.empty()) {
+                    return callback(null, new Buffer(0), headers);
                 }
 
-                return callback(err, pbfz, headers);
+                vtile.getData({ compression: this._gzip ? 'gzip' : 'none' }, (err, pbfz) => {
+                    if (err) {
+                        return callback(err);
+                    }
+
+                    if (this._gzip) {
+                        headers['Content-Encoding'] = 'gzip';
+                    }
+
+                    return callback(err, pbfz, headers);
+                });
             });
-        });
-    });
+        })
+        .catch((err) => callback(err));
 };
 
 // We (CARTO) are using always the default value: deferred = 2;
