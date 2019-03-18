@@ -14,7 +14,6 @@
   ],
   "dependencies": {
     "@carto/mapnik": "3.6.2-carto.11",
-    "@mapbox/sphericalmercator": "~1.0.1",
     "generic-pool": "^3.6.1"
   },
   "devDependencies": {
