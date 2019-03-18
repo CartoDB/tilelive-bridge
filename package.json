@@ -18,10 +18,13 @@
   },
   "devDependencies": {
     "deep-equal": "~1.0.0",
+    "eslint": "^5.15.2",
     "queue-async": "1.0.7",
     "tape": "^4.9.1"
   },
   "scripts": {
+    "lint": "eslint index.js",
+    "pretest": "npm run lint",
     "test": "tape test/*.js"
   }
 }
