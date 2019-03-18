@@ -1,6 +1,6 @@
 'use strict';
 
-var Bridge = require('..');
+var Bridge = require('../lib');
 var path = require('path');
 var fs = require('fs');
 var mapnik = require('@carto/mapnik');
@@ -8,8 +8,8 @@ var zlib = require('zlib');
 var tape = require('tape');
 var UPDATE = process.env.UPDATE;
 var deepEqual = require('deep-equal');
-const createMapPool = require('../map-pool');
-const normalizeURI = require('../uri');
+const createMapPool = require('../lib/map-pool');
+const normalizeURI = require('../lib/uri');
 
 // Load fixture data.
 var xml = {

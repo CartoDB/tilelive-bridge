@@ -1,6 +1,6 @@
 'use strict';
 
-var Bridge = require('..');
+var Bridge = require('../lib');
 var path = require('path');
 var fs = require('fs');
 var tape = require('tape');
