@@ -7,11 +7,10 @@ Implements the tilelive API for generating mapnik vector tiles from traditional 
 ### new Bridge(options, callback)
 
 - *xml*: a Mapnik XML string that will be used to generate vector tiles.
-- *base*: Optional, basepath for Mapnik map. Defaults to `__dirname`.
 
 ## Installation
 
-    yarn install @carto/tilelive-bridge
+    npm install @carto/tilelive-bridge
 
 Though `tilelive` is not a dependency of `tilelive-bridge` you will want to
 install it to actually make use of `tilelive-bridge` through a reasonable

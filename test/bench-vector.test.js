@@ -1,6 +1,6 @@
 'use strict';
 
-var Bridge = require('..');
+var Bridge = require('../lib');
 var mapnik = require('@carto/mapnik');
 var path = require('path');
 var fs = require('fs');

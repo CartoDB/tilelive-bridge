@@ -1,6 +1,19 @@
 # CARTO tilelive-bridge changelog
 
 ## 2.5.1-cdb12
+- Drop support for `yarn.lock`
+- Support `package-lock.json`
+- Replace `mapnik-pool` by `generic-pool` and make it closer to `tilelive-mapnik` to be able to customize `pool-size` & `max-waiting-clients`
+- Upgrade `eslint` 4.x to 5.x
+- Remove unused functionality:
+  - `.getIndexableDocs()`
+  - `.getInfo()`
+  - `pathname` is no longer supported
+  - Event emitter interface
+  - Do not gather `stats`
+  - Stop checking `max-tile-size`
+  - `.getRaster()`
+  - `@mapbox/sphericalmercator`
 
 
 ## 2.5.1-cdb11
