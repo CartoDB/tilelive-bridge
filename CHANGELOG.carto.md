@@ -1,5 +1,8 @@
 # CARTO tilelive-bridge changelog
 
+## 2.5.1-cdb13
+- Update @carto/mapnik to [`3.6.2-carto.13`](https://github.com/CartoDB/node-mapnik/blob/v3.6.2-carto.13/CHANGELOG.carto.md#362-carto13).
+
 ## 2.5.1-cdb12
 - Drop support for `yarn.lock`
 - Support `package-lock.json`
