@@ -1,6 +1,6 @@
 {
   "name": "@carto/tilelive-bridge",
-  "version": "2.5.1-cdb12",
+  "version": "2.5.1-cdb13",
   "main": "lib/index.js",
   "description": "Datasource => vector tiles bridge backend for tilelive",
   "repository": {
