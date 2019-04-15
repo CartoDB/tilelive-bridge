@@ -1,6 +1,6 @@
 {
   "name": "@carto/tilelive-bridge",
-  "version": "2.5.1-cdb12",
+  "version": "2.5.1-cdb13",
   "main": "lib/index.js",
   "description": "Datasource => vector tiles bridge backend for tilelive",
   "repository": {
@@ -13,12 +13,12 @@
     }
   ],
   "dependencies": {
-    "@carto/mapnik": "3.6.2-carto.11",
+    "@carto/mapnik": "3.6.2-carto.13",
     "generic-pool": "^3.6.1"
   },
   "devDependencies": {
     "deep-equal": "~1.0.0",
-    "eslint": "^5.15.2",
+    "eslint": "^5.16.0",
     "queue-async": "1.0.7",
     "tape": "^4.9.1"
   },
